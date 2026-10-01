@@ -1,0 +1,25 @@
+{
+  "name": "כמה | מחשבונים חכמים",
+  "short_name": "כמה",
+  "description": "מחשבון גיל, מחשבון עלות נסיעה ומונה תווים, באפליקציה אחת נקייה ומהירה",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F1420",
+  "theme_color": "#0F1420",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "icons/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "icons/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "icons/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "מחשבון גיל", "short_name": "גיל", "url": "./#/age", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "עלות נסיעה", "short_name": "נסיעה", "url": "./#/travel", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "מונה תווים", "short_name": "תווים", "url": "./#/chars", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

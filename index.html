@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1420">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="כמה: מחשבון גיל, מחשבון עלות נסיעה ומונה תווים, באפליקציה אחת נקייה ומהירה">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="כמה">
+<title>כמה | מחשבונים חכמים</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#0F1420; --surface:#161C2A; --raised:#1E2636; --line:#2A3346; --line-soft:#212938;
+  --text:#EEF1F6; --muted:#8B95A8; --faint:#5E687C;
+  --danger:#FF6B6B; --warn:#FFB547;
+  --c-age:#A99BFF; --c-travel:#3DD9B8; --c-chars:#FFB547;
+  --accent:#3DD9B8; --on-accent:#0B0F17;
+  --r-sm:10px; --r-md:14px; --r-lg:20px;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --font:"IBM Plex Sans Hebrew",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-user-select:none;user-select:none}
+input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums;unicode-bidi:isolate}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic-sm{width:18px;height:18px}
+
+/* ---------- Layout ---------- */
+#shell{min-height:100vh;min-height:100dvh;padding-bottom:calc(var(--safe-b) + 32px)}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px}
+.topbar{position:sticky;top:0;z-index:20;padding-top:var(--safe-t);background:rgba(15,20,32,.86);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
+.topbar.is-scrolled{border-bottom-color:var(--line-soft)}
+.topbar-in{width:100%;max-width:560px;margin:0 auto;height:60px;padding:0 10px;display:flex;align-items:center;gap:6px}
+.topbar-title{margin-inline-start:0;margin-inline-end:auto}
+.topbar-title{font-size:18px;font-weight:600;display:flex;align-items:center;gap:10px}
+.topbar-title .ic{color:var(--accent)}
+.icon-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--text);transition:background .15s}
+.icon-btn:active{background:var(--raised)}
+@media (hover:hover){.icon-btn:hover{background:var(--surface)}}
+.calc{padding-top:12px}
+.view-enter{animation:viewIn .32s var(--ease)}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- Hub ---------- */
+.hub-head{padding-top:calc(var(--safe-t) + 32px);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:44px;height:44px;flex:none}
+.wordmark{font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:.95}
+.wordmark-sub{margin-top:12px;color:var(--muted);font-size:16px}
+.search{position:relative;display:block;margin:28px 0 6px}
+.search .ic{position:absolute;inset-inline-start:15px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.search .input{padding-inline-start:46px}
+.list{list-style:none;margin-top:10px}
+.list li+li{border-top:1px solid var(--line-soft)}
+.row{display:flex;align-items:center;gap:16px;padding:16px 12px;margin:0 -12px;border-radius:16px;text-decoration:none;transition:background .15s}
+.row:active{background:var(--surface)}
+@media (hover:hover){.row:hover{background:var(--surface)}}
+.row-ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;flex:none;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.row-txt{flex:1;min-width:0}
+.row-txt b{display:block;font-weight:600;font-size:17px}
+.row-txt small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.row .chev{color:var(--faint)}
+.empty{color:var(--muted);text-align:center;padding:36px 0}
+.hub-foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.link-btn{color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:22px}
+.label{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:15px;font-weight:500;margin-bottom:9px}
+.aux{font-size:13px;color:var(--faint);font-weight:400}
+.input{display:block;width:100%;height:52px;padding:0 16px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-md);font-size:17px;color:var(--text);-webkit-appearance:none;appearance:none;
+  transition:border-color .15s,box-shadow .15s}
+.input::placeholder{color:var(--faint)}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent)}
+.input.is-error{border-color:var(--danger);box-shadow:0 0 0 4px color-mix(in srgb,var(--danger) 14%,transparent)}
+input[type=search]::-webkit-search-cancel-button{filter:invert(.6)}
+select.input{padding-inline-end:40px;cursor:pointer;background-repeat:no-repeat;background-position:left 14px center;background-size:16px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B95A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+select.input option{background:#161C2A;color:#EEF1F6}
+textarea.input{height:auto;min-height:220px;padding:14px 16px;line-height:1.65;resize:vertical;font-size:16px}
+.hint{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55}
+.hint.err{color:var(--danger);display:flex;gap:6px;align-items:flex-start}
+.hint.err .ic{width:16px;height:16px;margin-top:2px}
+.shake{animation:shake .38s}
+@keyframes shake{20%{transform:translateX(-6px)}45%{transform:translateX(5px)}70%{transform:translateX(-3px)}}
+.counter{font-size:13px;color:var(--faint);font-weight:400}
+.counter.is-near{color:var(--warn)}
+
+/* Segmented control */
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md)}
+.seg button{min-height:44px;padding:6px 8px;border-radius:10px;color:var(--muted);font-weight:500;font-size:15px;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,color .15s,box-shadow .15s}
+.seg button[aria-pressed="true"]{background:var(--raised);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 50%,transparent)}
+.seg button[aria-pressed="true"] .ic{color:var(--accent)}
+.seg--tiles button{flex-direction:column;min-height:74px;gap:5px;font-size:14px;line-height:1.2}
+.seg--tiles small{font-size:11.5px;color:var(--faint);font-weight:400}
+.date-row{display:grid;grid-template-columns:1fr 1.5fr 1.2fr;gap:8px}
+.price-row{display:grid;grid-template-columns:1fr 148px;gap:8px}
+
+/* Buttons */
+.btn{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;padding:0 20px;
+  border-radius:var(--r-md);background:var(--accent);color:var(--on-accent);font-weight:600;font-size:17px;
+  transition:transform .12s,opacity .2s,background .2s}
+.btn:active:not(:disabled){transform:scale(.985)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn--ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{flex:1}
+.chip{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--line);font-size:14px;color:var(--text);transition:background .15s,opacity .2s}
+.chip .ic{width:17px;height:17px;color:var(--accent)}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+@media (hover:hover){.chip:not(:disabled):hover{background:var(--raised)}}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-inline-end-color:transparent;animation:spin .75s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Results ---------- */
+.result{margin-top:8px;animation:viewIn .4s var(--ease)}
+.res-kicker{color:var(--muted);font-size:16px}
+.res-title{font-size:22px;font-weight:600;margin-top:2px}
+.hero{display:flex;align-items:baseline;gap:12px;margin:14px 0 22px}
+.big{font-size:84px;font-weight:700;letter-spacing:-.035em;line-height:.9;color:var(--accent)}
+.big-unit{font-size:22px;font-weight:500;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.tiles.t4{grid-template-columns:repeat(4,1fr)}
+.tile{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;padding:12px 4px 10px;text-align:center;min-width:0}
+.tile .num{display:block;font-size:24px;font-weight:600;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.sep{height:1px;background:var(--line-soft);margin:28px 0}
+.sub-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.sub-head h3{font-size:18px;font-weight:600}
+.sub-head span{color:var(--muted);font-size:14px}
+.bar{height:6px;border-radius:99px;background:var(--surface);overflow:hidden;margin-bottom:14px}
+.bar span{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .6s var(--ease)}
+.actions{margin-top:28px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.facts div{background:var(--surface);border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px}
+.facts dt{font-size:13px;color:var(--muted)}
+.facts dd{font-size:17px;font-weight:600;margin-top:2px;overflow-wrap:anywhere}
+.conv{font-size:18px;color:var(--text);margin-top:-8px}
+.conv span{color:var(--muted);font-size:14px}
+.note{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55;color:var(--muted);background:var(--surface);
+  border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;margin-top:14px}
+.note .ic{width:18px;height:18px;margin-top:1px;color:var(--muted)}
+.note.is-warn{color:var(--text);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.note.is-warn .ic{color:var(--warn)}
+.disclaimer{font-size:12.5px;color:var(--faint);line-height:1.6;margin-top:18px}
+
+/* Birthday banner */
+.bday{position:relative;overflow:hidden;border-radius:var(--r-lg);padding:22px 20px;margin-bottom:22px;
+  background:color-mix(in srgb,var(--accent) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.bday p{position:relative;font-size:19px;font-weight:600;line-height:1.4}
+.confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.confetti rect,.confetti circle{transform-box:fill-box;transform-origin:center;animation:fall 3.2s linear infinite}
+@keyframes fall{0%{transform:translateY(-30px) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(150px) rotate(320deg);opacity:0}}
+
+/* ---------- Travel ---------- */
+.ac{position:relative}
+.ac-list{position:absolute;inset-inline:0;top:calc(100% + 6px);z-index:30;list-style:none;padding:6px;background:var(--raised);
+  border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);max-height:290px;overflow:auto}
+.ac-list li{padding:10px 12px;border-radius:10px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.ac-list li[aria-selected="true"]{background:var(--surface)}
+@media (hover:hover){.ac-list li:hover{background:var(--surface)}}
+.ac-list .ic{width:18px;height:18px;margin-top:3px;color:var(--faint)}
+.ac-list .t{display:block;font-size:15px}
+.ac-list .s{display:block;font-size:13px;color:var(--muted)}
+.ac-list .ac-msg{color:var(--muted);font-size:14px;cursor:default;align-items:center}
+.loc-btn{margin-top:10px;display:flex;align-items:center;gap:10px;width:100%;height:48px;padding:0 14px;border-radius:12px;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);font-weight:500;font-size:15px;transition:background .15s}
+.loc-btn:active{background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.loc-btn:disabled{cursor:progress}
+.map-card{margin:2px 0 24px;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.map{height:230px;background:#151b28}
+.map .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9) saturate(.55)}
+.leaflet-container{font-family:var(--font)!important;background:#151b28!important}
+.leaflet-control-attribution{background:rgba(15,20,32,.75)!important;color:var(--muted)!important;font-size:10px!important}
+.leaflet-control-attribution a{color:var(--muted)!important}
+.leaflet-bar{border:1px solid var(--line)!important;box-shadow:none!important}
+.leaflet-bar a{background:var(--surface)!important;color:var(--text)!important;border-bottom-color:var(--line)!important}
+.mk-o{width:20px;height:20px;border-radius:50%;background:var(--accent);border:4px solid #0F1420;box-shadow:0 0 0 2px var(--accent)}
+.mk-d svg{width:30px;height:38px;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.route-sum{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-top:1px solid var(--line-soft);min-height:62px}
+.route-sum .km{font-size:26px;font-weight:700;letter-spacing:-.01em}
+.route-sum small{color:var(--muted);font-size:14px}
+.route-sum.is-error{color:var(--danger);justify-content:flex-start;font-size:14px;line-height:1.5}
+.route-sum .busy{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.offline{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;margin-bottom:20px;font-size:14px;
+  background:color-mix(in srgb,var(--danger) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.offline .ic{color:var(--danger);width:18px;height:18px;margin-top:1px}
+.cost{display:flex;align-items:baseline;gap:10px;margin:12px 0 18px;flex-wrap:wrap}
+.cost .big{font-size:68px}
+.cost .cur{font-size:30px;font-weight:600;color:var(--accent)}
+
+/* ---------- Characters ---------- */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.drop{position:relative;border-radius:var(--r-md)}
+.drop.is-over::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px dashed var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,transparent);pointer-events:none}
+.bigcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px}
+.bigcard-head{display:flex;gap:12px;align-items:center}
+.bigcard-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);flex:none}
+.bigcard-head b{display:block;font-weight:600}
+.bigcard-head small{display:block;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.preview{margin-top:14px;max-height:170px;overflow:hidden;font-family:inherit;font-size:14px;line-height:1.6;color:var(--muted);
+  white-space:pre-wrap;word-break:break-word;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.progress{height:4px;border-radius:99px;background:var(--raised);overflow:hidden;margin-top:14px}
+.progress span{display:block;height:100%;width:0;background:var(--accent);transition:width .15s linear}
+.stats{margin:6px 0 30px}
+.stats .hero{margin:6px 0 16px}
+.meter{height:8px;border-radius:99px;background:var(--surface);overflow:hidden;margin-top:14px}
+.meter span{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width .35s var(--ease),background .2s}
+.meter.is-over span{background:var(--danger)}
+.meter-txt{margin-top:10px;font-size:15px;color:var(--muted)}
+.meter-txt b{color:var(--text);font-weight:600}
+.meter-txt.is-over b{color:var(--danger)}
+#ch-custom{margin-top:10px}
+
+/* ---------- Sheet + Toast ---------- */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(5,8,14,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .22s}
+.overlay.is-open{opacity:1}
+.sheet{width:100%;max-width:480px;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;
+  padding:26px 22px calc(22px + var(--safe-b));transform:translateY(28px);transition:transform .3s var(--ease)}
+.overlay.is-open .sheet{transform:none}
+@media (min-width:640px){.overlay{align-items:center}.sheet{border-radius:24px;border-bottom:1px solid var(--line);padding-bottom:22px}}
+.sheet-ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;margin-bottom:16px;
+  color:var(--tone,var(--accent));background:color-mix(in srgb,var(--tone,var(--accent)) 14%,transparent)}
+.sheet h3{font-size:20px;font-weight:600;margin-bottom:8px}
+.sheet p{color:var(--muted);line-height:1.65}
+.sheet .btn-row{margin-top:24px}
+.inline-ic{display:inline-block;vertical-align:-4px;width:18px;height:18px;color:var(--text)}
+.toast{position:fixed;left:50%;bottom:calc(20px + var(--safe-b));z-index:110;transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  background:var(--raised);border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:14px;font-size:15px;
+  display:flex;align-items:center;gap:14px;box-shadow:0 14px 34px rgba(0,0,0,.4);transition:opacity .2s,transform .28s var(--ease);
+  width:max-content;max-width:calc(100vw - 32px)}
+.toast.is-on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{color:var(--accent);font-weight:600;padding:4px 2px;white-space:nowrap}
+
+/* ---------- Onboarding ---------- */
+.ob{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;
+  padding:calc(var(--safe-t) + 6px) 0 calc(var(--safe-b) + 22px);transition:opacity .35s,transform .35s var(--ease)}
+.ob.is-leaving{opacity:0;transform:scale(1.02)}
+.ob-top{height:48px;display:flex;align-items:center;justify-content:flex-end;padding:0 12px}
+.ob-skip{color:var(--muted);font-size:15px;padding:8px 14px;border-radius:10px}
+.ob-viewport{flex:1;overflow:hidden;touch-action:pan-y;min-height:0}
+.ob-track{display:flex;height:100%;transition:transform .5s var(--ease);will-change:transform}
+.ob-slide{flex:0 0 100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;text-align:center}
+.ob-art{width:min(250px,64vw,38vh);aspect-ratio:1;margin-bottom:clamp(20px,5vh,40px)}
+.ob-art svg{width:100%;height:100%;overflow:visible}
+.ob-slide h2{font-size:clamp(24px,7vw,30px);font-weight:700;letter-spacing:-.015em;line-height:1.2;margin-bottom:12px;max-width:340px}
+.ob-slide p{color:var(--muted);font-size:16px;line-height:1.7;max-width:330px}
+.ob-bottom{width:100%;max-width:480px;margin:0 auto;padding:0 24px}
+.ob-dots{display:flex;justify-content:center;gap:4px;margin-bottom:22px}
+.ob-dots button{padding:8px 3px}
+.ob-dots i{display:block;width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .35s var(--ease),background .35s}
+.ob-dots button[aria-current="true"] i{width:26px;background:var(--text)}
+.ob .btn{background:var(--a,var(--text));transition:background .4s,transform .12s}
+.ob-art use{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* slide 1 */
+.a1-orbit{transform-origin:120px 120px;animation:orbit 26s linear infinite}
+.a1-sat{transform-box:fill-box;transform-origin:center;animation:orbit 26s linear infinite reverse}
+.a1-bar{transform-box:fill-box;transform-origin:center;transform:scaleX(0)}
+.is-active .a1-bar{animation:barIn .7s var(--ease) forwards}
+.is-active .a1-bar:nth-of-type(2){animation-delay:.35s}.is-active .a1-bar:nth-of-type(3){animation-delay:.45s}.is-active .a1-bar:nth-of-type(4){animation-delay:.55s}
+@keyframes barIn{to{transform:scaleX(1)}}
+@keyframes orbit{to{transform:rotate(360deg)}}
+/* slide 2 */
+.a2-ring{stroke-dashoffset:100}
+.is-active .a2-ring{animation:ring 1.8s var(--ease) .15s forwards}
+@keyframes ring{to{stroke-dashoffset:27}}
+.a2-sec{transform-origin:120px 120px;animation:orbit 60s steps(60) infinite}
+/* slide 3 */
+.a3-route{stroke-dashoffset:1}
+.is-active .a3-route{animation:draw 1.5s var(--ease) .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.a3-pin{opacity:0;transform:translateY(-16px)}
+.is-active .a3-pin{animation:pinDrop .55s var(--ease) 1.35s forwards}
+@keyframes pinDrop{to{opacity:1;transform:none}}
+.a3-pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{from{transform:scale(.6);opacity:.55}to{transform:scale(1.9);opacity:0}}
+.a3-car{opacity:0;transition:opacity .3s}
+.is-active .a3-car{opacity:1;transition-delay:1.6s}
+/* slide 4 */
+.a4-line{transform-box:fill-box;transform-origin:right center;transform:scaleX(0)}
+.is-active .a4-line{animation:barIn .5s var(--ease) forwards}
+.a4-caret{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.a4-badge{transform-box:fill-box;transform-origin:center;transform:scale(.6);opacity:0}
+.is-active .a4-badge{animation:badge .5s var(--ease) 1.1s forwards}
+@keyframes badge{to{transform:none;opacity:1}}
+
+@media (max-width:370px){
+  .wrap{padding:0 16px}
+  .tiles{gap:6px}.tile .num{font-size:20px}
+  .big{font-size:72px}.cost .big{font-size:56px}
+  .price-row{grid-template-columns:1fr 128px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 5.5l6.5 6.5L9 18.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M15 5.5L8.5 12l6.5 6.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/></symbol>
+  <symbol id="i-install" viewBox="0 0 24 24"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M5 20h14"/></symbol>
+  <symbol id="i-age" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.3"/><circle cx="18" cy="6" r="2.3"/><path d="M8.3 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.7"/></symbol>
+  <symbol id="i-chars" viewBox="0 0 24 24"><path d="M4.5 7V5h11v2M10 5v14M7.5 19h5M19.5 8.5v11"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-pump" viewBox="0 0 24 24"><path d="M5 20.5V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15.5M3.5 20.5h13M7.5 8h5M15 9.5l2.5 2.5v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3.6 4.3 6 7.5 6 10.6a6 6 0 0 1-12 0c0-3.1 2.4-6.3 6-10.6z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></symbol>
+  <symbol id="i-gas" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="14.5" rx="4.5"/><path d="M10 6.5V3.5h4v3M6.5 12h11"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 3L5.5 13.5h6L10.5 21l8-10.5h-6L13.5 3z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.5l8.5 15h-17L12 4.5z"/><path d="M12 10.5v4M12 17.3v.1"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16.5" rx="2.5"/><path d="M9 4.5V3.5h6v1M9 11h6M9 15h4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-offline" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 6-.8M5 13a10 10 0 0 1 4.3-2.6M15 10.6A10 10 0 0 1 19 13M2 9.5a15 15 0 0 1 4-2.7M10.5 5.1A15 15 0 0 1 22 9.5M12 20h.01"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6.5 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 20h16M5.5 20v-6.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2V20M5.5 15.5c1.3 1 2.5 1 3.8 0s2.5-1 3.7 0 2.5 1 3.7 0 1.3-.5 1.8-.5M12 11.5V8M12 5.5v.1"/></symbol>
+</svg>
+
+<div id="onboarding" class="ob" hidden></div>
+<div id="shell" hidden><main id="view"></main></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/*CORE-START*/
+const Core = (() => {
+  /* ===== סינון שפה פוגענית ===== */
+  const FINALS = { 'ך':'כ', 'ם':'מ', 'ן':'נ', 'ף':'פ', 'ץ':'צ' };
+  function norm(s){
+    return String(s || '').toLowerCase().normalize('NFKC')
+      .replace(/[\u0591-\u05C7]/g, '')
+      .replace(/[ךםןףץ]/g, c => FINALS[c])
+      .replace(/[^a-z\u05D0-\u05EA\s]/g, '')
+      .replace(/(.)\1+/g, '$1')
+      .replace(/\s+/g, ' ').trim();
+  }
+  const RAW = [
+    "זונה","זונות","יזונה","יזונות","בן זונה","יבן זונה","בת זונה","בת זונות","שרמוטה","שרמוטות","שרמוט","שרמוטים",
+    "מניאק","מניאקים","מניאקית","חלאה","חלאות","טמבל","טמבלים","מטומטם","מטומטמים","מטומטמת","מטומטמות","ימטומטם",
+    "אידיוט","אידיוטים","אידיוטית","סתום","סתומים","דביל","דבילים","בן שרמוטה","בת שרמוטה","יא בן זונה","יא בת זונה",
+    "יא מניאק","יא חרא","חרא","יא מזדיין","מזדיין","זין","זיינתי","יזדיין","תזדיין","תמות","לך תמות","לכי תמותי",
+    "אני אקרע אותך","אני אזיין אותך","אני אאנוס אותך","לאנוס","יא כלב","יא כלבה","כלבה","כלב בן זונה",
+    "כוס","כוס אמא שלך","כוס עמק","כוס של אמא שלך","כוסעמק","כוסאמאשך","טיפש","טיפשה","מפגר","מפגרת","מפגרים",
+    "חולירע","מכוער","מכוערת","מסריח","מסריחה","יא זונה","זין עליך","זין עלייך","זין עליכם","זין עליכן","חארות","חארה",
+    "חרא של בן אדם","חרא של בנאדם","חרא עליך","חרא עלייך","יא בן כלבה","בן כלבה","בת כלבה","בן של כלבה","יא בן שרמוטה",
+    "יא בת שרמוטה","יא בן זונא","יא בת זונא","בן של זונה","בת של זונה","ילד של זונה","ילד זונה","ילדה של זונה","תחת",
+    "תחת מסריח","תחתונים מסריחים","חמור","חמורה","חמורים","אפס","אפס מאופס","יא אפס","יא אפסית","נבלה","בהמה","מגעיל",
+    "מגעילה","מגעילים","מת","תמות כבר","תמותי כבר","תמותו","יא מת","יא מתה","פגר","פגר מת","גועל נפש","מגעיל נפש",
+    "תסתום","תסתמי","סתמי","סתום תפה","סתמי תפה","יא שתוק","תשתוק","סתום את הפה","סתמי את הפה","זבל","זבלים","יא זבל",
+    "ילד זבל","בת זבל","בן זבל","אמא שלך זונה","אמא שלך שרמוטה","אמא בת שרמוטה","אמא שרמוטה","אמא זונה","אבא שלך זונה",
+    "אבא בן שרמוטה","אבא בן זונה","בן קוף","בת קוף","יא קוף","קוף","קופים","כושי","כושית","כושים","כוסיות","כוסית",
+    "תזדייני","תזדיינו","שיזדיין","שיזדיינו","מזדיינים","מזדיינת","זיונים","זיון","זיין","זיינה","תמותו כולם","שימותו",
+    "שתמות","שתמותי","פאק","פאקינג","פאקינג שיט","זין שלי","בתחת שלך","חלאת אדם","יא בן של אלף זונות",
+    "בן של אלף שרמוטות","בת של אלף זונות","שרמוטה מסריחה","זונה מסריחה","יא הומו","לסבית מסריחה","יא ערבי","ערבי מסריח",
+    "ערבים מסריחים","שחור מסריח","שחורים מסריחים","נאצי","נאצים","נאצית","יהודון","יהודונים","גוי מסריח","גויים מסריחים",
+    "חלאת המין האנושי","יא מזדיינת","יא זבל אנושי","חרא של חיים","תחנק","תחנקי","תחנקו","תחנק למוות","לך תזדיין",
+    "לכי תזדייני","לכו תזדיינו","לך תתאבד","תתאבד","תתאבדי","תתאבדו","קוסאמק","קוסאימק","קוס אמק","קוס אמא","קוס אימא",
+    "אימא שלך זונה","אימא שלך שרמוטה","יא חתיכת אפס","חתיכת אפס","חתיכת זבל","חתיכת בן זונה","חתיכת חרא","חתיכת כלב",
+    "חתיכת כלבה","חמור בן חמור","דפוק","דפוקה","דפוקים","חולה נפש","חולי נפש","משוגע","משוגעת","פסיכי","פסיכית",
+    "בן זונא","בת זונא","בהמות","כוסאמק","כוסאמא","בולבול","דפוק בתחת","תכניס לי","שמן זין","יא זין","ניגר","ניגרים",
+    "היטלר","מחבל","מחבלים","חמאר","ינעל","יאללה תמות","יאללה תזדיין",
+    "fuck","fucking","shit","bitch","asshole","motherfucker","dick","cunt","whore","slut","nigger","nigga","faggot",
+    "fag","bastard","twat","wanker","pussy"
+  ];
+  const SUBSTR = ["שרמוט","כוסאמ","כוסעמ","כוסאימ","קוסאמ","קוסאימ","מזדיינ","תזדיינ","fuck","motherfuck","nigger","cunt"].map(norm);
+  const PREFIX = ['ו','ה','ש','ב','ל','מ','כ','יא','וה','ול','וב','שה'];
+  const WORDS = new Set(), PHRASES = new Set(), COMPACT = new Set();
+  let MAXTOK = 1;
+  RAW.forEach(w => {
+    const n = norm(w); if (!n) return;
+    const toks = n.split(' ');
+    MAXTOK = Math.max(MAXTOK, toks.length);
+    (toks.length === 1 ? WORDS : PHRASES).add(n);
+    const c = n.replace(/ /g, '');
+    if (c.length >= 4) COMPACT.add(c);
+  });
+  function tokens(s){
+    const raw = norm(s).split(' ').filter(Boolean), out = [];
+    let run = '';
+    for (const t of raw){
+      if (t.length === 1){ run += t; continue; }
+      if (run){ out.push(run); run = ''; }
+      out.push(t);
+    }
+    if (run) out.push(run);
+    return out.map(t => t.replace(/(.)\1+/g, '$1'));
+  }
+  function wordHit(t){
+    if (WORDS.has(t)) return t;
+    if (t.length >= 4 && COMPACT.has(t)) return t;
+    for (const p of PREFIX){
+      if (t.startsWith(p) && t.length - p.length >= 3){
+        const r = t.slice(p.length);
+        if (WORDS.has(r) || COMPACT.has(r)) return r;
+      }
+    }
+    return null;
+  }
+  function checkProfanity(s){
+    const toks = tokens(s);
+    for (let i = 0; i < toks.length; i++){
+      const h = wordHit(toks[i]); if (h) return h;
+      for (let L = 2; L <= Math.min(MAXTOK, toks.length - i); L++){
+        const win = toks.slice(i, i + L), ph = win.join(' ');
+        if (PHRASES.has(ph)) return ph;
+        const c = win.join('');
+        if (c.length >= 4 && (COMPACT.has(c) || WORDS.has(c))) return ph;
+        for (const p of PREFIX){
+          if (win[0].startsWith(p) && win[0].length > p.length){
+            const ph2 = [win[0].slice(p.length), ...win.slice(1)].join(' ');
+            if (PHRASES.has(ph2)) return ph2;
+          }
+        }
+      }
+    }
+    const all = toks.join('');
+    for (const sub of SUBSTR) if (all.includes(sub)) return sub;
+    return null;
+  }
+  function maskWord(w){
+    let first = true;
+    return [...w].map(ch => ch === ' ' ? ' ' : (first ? (first = false, ch) : '*')).join('');
+  }
+  function sanitizeName(v, max){
+    let s = String(v).replace(/[^A-Za-z\u05D0-\u05EA\u05F3' ]/g, '').replace(/ {2,}/g, ' ').replace(/^ /, '');
+    return [...s].slice(0, max).join('');
+  }
+
+  /* ===== תאריכים ===== */
+  const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const daysInMonth = (y, m1) => new Date(y, m1, 0).getDate(); // m1: 1..12
+  function addMonthsClamp(date, months){
+    const y = date.getFullYear(), m = date.getMonth() + months;
+    const last = new Date(y, m + 1, 0).getDate();
+    return new Date(y, m, Math.min(date.getDate(), last));
+  }
+  function ageParts(birth, now){
+    const today = startOfDay(now);
+    let months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
+    let anchor = addMonthsClamp(birth, months);
+    if (anchor > today){ months--; anchor = addMonthsClamp(birth, months); }
+    const d = Math.round((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) -
+                          Date.UTC(anchor.getFullYear(), anchor.getMonth(), anchor.getDate())) / 864e5);
+    return { y: Math.floor(months / 12), m: months % 12, d, H: now.getHours(), M: now.getMinutes(), S: now.getSeconds() };
+  }
+  function birthdayIn(birth, year){
+    const last = new Date(year, birth.getMonth() + 1, 0).getDate();
+    return new Date(year, birth.getMonth(), Math.min(birth.getDate(), last));
+  }
+  function nextBirthday(birth, now){
+    const today = startOfDay(now), y = today.getFullYear();
+    const thisYear = birthdayIn(birth, y);
+    const isToday = thisYear.getTime() === today.getTime();
+    const next = thisYear > today ? thisYear : birthdayIn(birth, y + 1);
+    const prev = thisYear <= today ? thisYear : birthdayIn(birth, y - 1);
+    const left = Math.max(0, next - now);
+    return {
+      date: next, prev, isToday,
+      turning: next.getFullYear() - birth.getFullYear(),
+      progress: Math.min(1, Math.max(0, (now - prev) / (next - prev))),
+      d: Math.floor(left / 864e5), H: Math.floor(left / 36e5) % 24,
+      M: Math.floor(left / 6e4) % 60, S: Math.floor(left / 1e3) % 60
+    };
+  }
+
+  /* ===== מספרים ===== */
+  function parseNum(s){
+    const v = parseFloat(String(s ?? '').trim().replace(/,/g, '.').replace(/[^\d.]/g, ''));
+    return Number.isFinite(v) ? v : NaN;
+  }
+  function parseConsumption(str){
+    const s = String(str || '').replace(/,/g, '.').replace(/\s+/g, '').replace(/[\u05BE\u2010-\u2015]/g, '-').toLowerCase();
+    if (!s) return NaN;
+    let m = s.match(/^1(?:[:\/\-]|ל)+(\d+(?:\.\d+)?)$/);
+    if (m) return +m[1];
+    m = s.match(/^(\d+(?:\.\d+)?)(?:km\/?l|kmpl|ק["״]?מ(?:\/|ל)?(?:ליטר)?)?$/);
+    if (m) return +m[1];
+    return NaN;
+  }
+  function fmtBytes(b){
+    const LRM = '\u200E';
+    if (b < 1024) return LRM + b + ' B';
+    const u = ['KB','MB','GB']; let i = -1;
+    do { b /= 1024; i++; } while (b >= 1024 && i < u.length - 1);
+    return LRM + b.toFixed(b < 10 ? 2 : 1) + ' ' + u[i];
+  }
+
+  return { norm, checkProfanity, maskWord, sanitizeName, startOfDay, daysInMonth, ageParts, nextBirthday, parseNum, parseConsumption, fmtBytes };
+})();
+
+/* ספירת תווים: פונקציה עצמאית, רצה גם ב Web Worker (דרך toString) וגם כגיבוי ב main thread */
+function counterCore(){
+  function isWs(c){
+    return c === 32 || c === 10 || c === 9 || c === 13 || c === 11 || c === 12 || c === 160 || c === 0x85 || c === 0x1680 ||
+      (c >= 0x2000 && c <= 0x200A) || c === 0x2028 || c === 0x2029 || c === 0x202F || c === 0x205F || c === 0x3000 || c === 0xFEFF;
+  }
+  function makeState(){ return { chars:0, noWs:0, words:0, lines:0, bytes:0, inWord:false, any:false }; }
+  function feed(st, s){
+    let chars = st.chars, noWs = st.noWs, words = st.words, lines = st.lines, bytes = st.bytes, inWord = st.inWord;
+    for (let i = 0, n = s.length; i < n; i++){
+      const c = s.charCodeAt(i);
+      if (c >= 0xDC00 && c <= 0xDFFF) continue;           // חצי שני של זוג surrogate, כבר נספר
+      chars++;
+      bytes += c < 0x80 ? 1 : c < 0x800 ? 2 : (c >= 0xD800 && c <= 0xDBFF) ? 4 : 3;
+      if (c === 10) lines++;
+      if (isWs(c)) inWord = false;
+      else { noWs++; if (!inWord){ words++; inWord = true; } }
+    }
+    st.chars = chars; st.noWs = noWs; st.words = words; st.lines = lines; st.bytes = bytes; st.inWord = inWord;
+    if (s.length) st.any = true;
+  }
+  function result(st){ return { chars: st.chars, noWs: st.noWs, words: st.words, lines: st.any ? st.lines + 1 : 0, bytes: st.bytes }; }
+  return { makeState, feed, result };
+}
+function workerMain(core){
+  const PREVIEW = 2000;
+  self.onmessage = async (e) => {
+    const { id, type } = e.data;
+    const st = core.makeState();
+    let last = 0;
+    const tick = (p) => {
+      const now = Date.now();
+      if (now - last > 80){ last = now; self.postMessage({ id, type:'progress', p, stats: core.result(st) }); }
+    };
+    try {
+      if (type === 'text'){
+        const s = e.data.text, CH = 1 << 20;
+        for (let i = 0; i < s.length; i += CH){ core.feed(st, s.slice(i, i + CH)); tick(Math.min(1, (i + CH) / s.length)); }
+        self.postMessage({ id, type:'done', stats: core.result(st), preview: s.slice(0, PREVIEW) });
+      } else {
+        const file = e.data.file, reader = file.stream().getReader(), dec = new TextDecoder('utf-8');
+        let read = 0, preview = '';
+        for (;;){
+          const { value, done } = await reader.read();
+          if (done) break;
+          read += value.byteLength;
+          const s = dec.decode(value, { stream:true });
+          if (preview.length < PREVIEW) preview += s.slice(0, PREVIEW - preview.length);
+          core.feed(st, s);
+          tick(file.size ? read / file.size : 1);
+        }
+        core.feed(st, dec.decode());
+        self.postMessage({ id, type:'done', stats: core.result(st), preview });
+      }
+    } catch (err) {
+      self.postMessage({ id, type:'error', message: String(err && err.message || err) });
+    }
+  };
+}
+/*CORE-END*/
+
+(() => {
+const APP_VERSION = '1.0.0';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const icon = (id, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const esc = s => String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+const fmt = (n, d = 0) => Number(n).toLocaleString('he-IL', { minimumFractionDigits: d, maximumFractionDigits: d });
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('kama:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem('kama:' + k, JSON.stringify(v)); } catch {} }
+};
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MARK = `<svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#1E2636"/><rect x="10" y="13" width="20" height="4.6" rx="2.3" fill="#EEF1F6"/><rect x="10" y="22.4" width="5.6" height="4.6" rx="2.3" fill="#A99BFF"/><rect x="17.2" y="22.4" width="5.6" height="4.6" rx="2.3" fill="#3DD9B8"/><rect x="24.4" y="22.4" width="5.6" height="4.6" rx="2.3" fill="#FFB547"/></svg>`;
+
+/* ===== UI: toast + sheet ===== */
+const UI = {
+  _tt: null,
+  toast(msg, opts = {}){
+    const el = $('#toast');
+    el.innerHTML = `<span>${esc(msg)}</span>` + (opts.action ? `<button type="button">${esc(opts.action)}</button>` : '');
+    if (opts.action) el.querySelector('button').onclick = () => { el.classList.remove('is-on'); opts.onAction && opts.onAction(); };
+    el.classList.add('is-on');
+    clearTimeout(this._tt);
+    if (!opts.sticky) this._tt = setTimeout(() => el.classList.remove('is-on'), opts.ms || 2800);
+  },
+  sheet({ ic = 'info', tone = '', title, text, actions = [{ label:'הבנתי', primary:true }] }){
+    return new Promise(resolve => {
+      const prevFocus = document.activeElement;
+      const ov = document.createElement('div');
+      ov.className = 'overlay';
+      ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+        <div class="sheet-ic"${tone ? ` style="--tone:${tone}"` : ''}>${icon(ic)}</div>
+        <h3 id="sh-t">${esc(title)}</h3><p>${text}</p>
+        <div class="btn-row">${actions.map((a, i) => `<button type="button" class="btn ${a.primary ? '' : 'btn--ghost'}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>
+      </div>`;
+      document.body.appendChild(ov);
+      requestAnimationFrame(() => ov.classList.add('is-open'));
+      const close = (i) => {
+        document.removeEventListener('keydown', onKey);
+        ov.classList.remove('is-open');
+        setTimeout(() => ov.remove(), 260);
+        prevFocus && prevFocus.focus && prevFocus.focus({ preventScroll:true });
+        resolve(i);
+      };
+      const onKey = e => { if (e.key === 'Escape') close(-1); };
+      document.addEventListener('keydown', onKey);
+      ov.addEventListener('click', e => {
+        if (e.target === ov) return close(-1);
+        const b = e.target.closest('[data-i]'); if (b) close(+b.dataset.i);
+      });
+      const primary = ov.querySelector('.btn:not(.btn--ghost)') || ov.querySelector('.btn');
+      setTimeout(() => primary && primary.focus({ preventScroll:true }), 60);
+    });
+  }
+};
+
+/* ===== רישום מחשבונים ===== */
+const calculators = [];
+const register = def => calculators.push(def);
+
+/* ===== ניתוב ===== */
+let cleanup = null, fromHub = false;
+const view = $('#view');
+function route(){
+  if (cleanup){ try { cleanup(); } catch (e) { console.error(e); } cleanup = null; }
+  const id = location.hash.replace(/^#\/?/, '');
+  const calc = calculators.find(c => c.id === id);
+  if (calc) renderCalc(calc); else renderHub();
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+function renderHub(){
+  fromHub = false;
+  document.documentElement.style.setProperty('--accent', 'var(--c-travel)');
+  view.innerHTML = `<div class="wrap view-enter">
+    <header class="hub-head">
+      <div>
+        <div class="brand">${MARK}<h1 class="wordmark">כמה</h1></div>
+        <p class="wordmark-sub">מחשבונים חכמים לכל יום</p>
+      </div>
+      <button class="icon-btn" id="hub-install" type="button" aria-label="התקנת האפליקציה" hidden>${icon('install')}</button>
+    </header>
+    <label class="search">${icon('search')}<input class="input" type="search" id="hub-q" placeholder="חיפוש מחשבון" aria-label="חיפוש מחשבון" autocomplete="off" enterkeyhint="search"></label>
+    <ul class="list" id="hub-list"></ul>
+    <p class="empty" id="hub-empty" hidden>לא מצאנו מחשבון שמתאים לחיפוש</p>
+    <footer class="hub-foot"><button class="link-btn" id="hub-tour" type="button">סיור באפליקציה</button><span class="num">גרסה ${APP_VERSION}</span></footer>
+  </div>`;
+  const list = $('#hub-list'), q = $('#hub-q'), empty = $('#hub-empty');
+  const draw = () => {
+    const term = Core.norm(q.value);
+    const items = calculators.filter(c => !term || Core.norm(c.title + ' ' + c.desc + ' ' + c.keywords).includes(term));
+    list.innerHTML = items.map(c => `<li><a class="row" href="#/${c.id}" style="--c:${c.accent}">
+      <span class="row-ic">${icon(c.icon)}</span>
+      <span class="row-txt"><b>${esc(c.title)}</b><small>${esc(c.desc)}</small></span>
+      ${icon('chev', 'chev')}</a></li>`).join('');
+    empty.hidden = items.length > 0;
+  };
+  draw();
+  q.addEventListener('input', draw);
+  list.addEventListener('click', e => { if (e.target.closest('.row')) fromHub = true; });
+  $('#hub-tour').addEventListener('click', () => Onboarding.open(true));
+  $('#hub-install').addEventListener('click', Install.prompt);
+  Install.refresh();
+}
+
+function renderCalc(c){
+  document.documentElement.style.setProperty('--accent', c.accent);
+  view.innerHTML = `<header class="topbar" id="topbar"><div class="topbar-in">
+      <button class="icon-btn" id="back" type="button" aria-label="חזרה למסך הראשי">${icon('back')}</button>
+      <h1 class="topbar-title">${icon(c.icon)}${esc(c.title)}</h1>
+    </div></header>
+    <div class="wrap calc view-enter" id="calc-body"></div>`;
+  $('#back').addEventListener('click', () => { if (fromHub) history.back(); else location.hash = '#/'; });
+  const bar = $('#topbar');
+  const onScroll = () => bar.classList.toggle('is-scrolled', window.scrollY > 4);
+  window.addEventListener('scroll', onScroll, { passive:true });
+  const own = c.mount($('#calc-body'));
+  cleanup = () => { window.removeEventListener('scroll', onScroll); own && own(); };
+}
+
+/* ===== שקופיות פתיחה ===== */
+const Onboarding = (() => {
+  const ticks = Array.from({ length: 12 }, (_, i) => {
+    const a = i * Math.PI / 6, r1 = 70, r2 = i % 3 === 0 ? 62 : 66;
+    return `<line x1="${120 + r1 * Math.sin(a)}" y1="${120 - r1 * Math.cos(a)}" x2="${120 + r2 * Math.sin(a)}" y2="${120 - r2 * Math.cos(a)}" style="stroke:var(--line)" stroke-width="2" stroke-linecap="round"/>`;
+  }).join('');
+  const sat = (cx, cy, id, c) => `<g class="a1-sat"><circle cx="${cx}" cy="${cy}" r="21" style="fill:var(--surface);stroke:var(--line)"/><use href="#i-${id}" x="${cx - 11}" y="${cy - 11}" width="22" height="22" style="color:${c}"/></g>`;
+  const lines = [112, 96, 120, 72, 104, 88, 52];
+  const SLIDES = [
+    { a:'#EEF1F6', title:'ברוכים הבאים לכמה', text:'כל המחשבונים שאתם צריכים במקום אחד. בלי הרשמה ובלי חשבון, פשוט פותחים ומחשבים.',
+      art:`<svg viewBox="0 0 240 240" fill="none">
+        <circle cx="120" cy="120" r="92" style="stroke:var(--line)" stroke-dasharray="2 9" stroke-linecap="round"/>
+        <rect x="76" y="76" width="88" height="88" rx="26" style="fill:var(--raised)"/>
+        <rect class="a1-bar" x="97" y="103" width="46" height="10" rx="5" fill="#EEF1F6"/>
+        <rect class="a1-bar" x="97" y="127" width="13" height="10" rx="5" fill="#A99BFF"/>
+        <rect class="a1-bar" x="113.5" y="127" width="13" height="10" rx="5" fill="#3DD9B8"/>
+        <rect class="a1-bar" x="130" y="127" width="13" height="10" rx="5" fill="#FFB547"/>
+        <g class="a1-orbit">${sat(120, 28, 'age', '#A99BFF')}${sat(199.7, 166, 'route', '#3DD9B8')}${sat(40.3, 166, 'chars', '#FFB547')}</g>
+      </svg>` },
+    { a:'#A99BFF', title:'הגיל המדויק שלכם', text:'שנים, חודשים וימים עד השנייה האחרונה, וספירה לאחור ליום ההולדת הבא.',
+      art:`<svg viewBox="0 0 240 240" fill="none" style="--a:#A99BFF">
+        <circle cx="120" cy="120" r="92" style="stroke:var(--surface)" stroke-width="12"/>
+        <circle class="a2-ring" cx="120" cy="120" r="92" style="stroke:var(--a)" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="100" transform="rotate(-90 120 120)"/>
+        ${ticks}
+        <g class="a2-sec"><circle cx="120" cy="50" r="4.5" style="fill:var(--a)"/></g>
+        <text x="120" y="132" text-anchor="middle" font-size="58" font-weight="700" style="fill:var(--text);font-family:var(--font)" class="num">34</text>
+        <text x="120" y="160" text-anchor="middle" font-size="15" style="fill:var(--muted);font-family:var(--font)">שנים</text>
+      </svg>` },
+    { a:'#3DD9B8', title:'כמה תעלה הנסיעה', text:'בוחרים מאיפה ולאן, או יוצאים ישירות מהמיקום הנוכחי. נחשב מסלול, מרחק ועלות דלק או חשמל.',
+      art:`<svg viewBox="0 0 240 240" fill="none" style="--a:#3DD9B8">
+        <defs><pattern id="ob-dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.3" style="fill:var(--line)"/></pattern></defs>
+        <rect x="8" y="8" width="224" height="224" rx="32" fill="url(#ob-dots)"/>
+        <path id="ob-path" d="M44 186 C44 132 108 150 120 116 S176 58 194 58" style="stroke:var(--line)" stroke-width="6" stroke-linecap="round" stroke-dasharray="1 12"/>
+        <path class="a3-route" d="M44 186 C44 132 108 150 120 116 S176 58 194 58" style="stroke:var(--a)" stroke-width="6" stroke-linecap="round" pathLength="1" stroke-dasharray="1"/>
+        <circle class="a3-pulse" cx="44" cy="186" r="14" style="fill:var(--a)"/>
+        <circle cx="44" cy="186" r="9" style="fill:var(--a)"/><circle cx="44" cy="186" r="3.6" style="fill:var(--bg)"/>
+        <g class="a3-pin"><path d="M194 60c-9-10-15-17-15-25a15 15 0 0 1 30 0c0 8-6 15-15 25z" style="fill:var(--a)"/><circle cx="194" cy="35" r="5.5" style="fill:var(--bg)"/></g>
+        <circle class="a3-car" r="6.5" style="fill:var(--text)"><animateMotion dur="3.4s" repeatCount="indefinite" begin="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines=".45 0 .2 1"><mpath href="#ob-path"/></animateMotion></circle>
+      </svg>` },
+    { a:'#FFB547', title:'כמה תווים יש כאן', text:'סופרים תווים, מילים ושורות, גם בטקסטים ובקבצים ענקיים, בלי שהמכשיר ייתקע.',
+      art:`<svg viewBox="0 0 240 240" fill="none" style="--a:#FFB547">
+        <rect x="46" y="26" width="148" height="180" rx="20" style="fill:var(--surface);stroke:var(--line)"/>
+        ${lines.map((w, i) => `<rect class="a4-line" x="${176 - w}" y="${54 + i * 20}" width="${w}" height="7" rx="3.5" style="fill:var(--line);animation-delay:${.1 + i * .1}s"/>`).join('')}
+        <rect class="a4-caret" x="${176 - 52 - 9}" y="${54 + 6 * 20 - 3}" width="2.5" height="13" rx="1" style="fill:var(--a)"/>
+        <g class="a4-badge"><rect x="18" y="170" width="134" height="46" rx="23" style="fill:var(--a)"/>
+          <text x="85" y="199" text-anchor="middle" font-size="19" font-weight="700" style="fill:#0B0F17;font-family:var(--font)" class="a4-count num">128,540</text></g>
+      </svg>` }
+  ];
+  let el, track, dots, nextBtn, idx = 0, onDone = null, countRaf = 0;
+
+  function build(){
+    el = $('#onboarding');
+    el.innerHTML = `<div class="ob-top"><button class="ob-skip" type="button" data-skip>דלג</button></div>
+      <div class="ob-viewport"><div class="ob-track" dir="rtl">${SLIDES.map((s, i) => `
+        <section class="ob-slide" aria-roledescription="שקופית" aria-label="${i + 1} מתוך ${SLIDES.length}" style="--a:${s.a}">
+          <div class="ob-art" aria-hidden="true">${s.art}</div>
+          <h2>${s.title}</h2><p>${s.text}</p>
+        </section>`).join('')}</div></div>
+      <div class="ob-bottom">
+        <div class="ob-dots" role="tablist">${SLIDES.map((_, i) => `<button type="button" role="tab" aria-label="שקופית ${i + 1}" data-go="${i}"><i></i></button>`).join('')}</div>
+        <button class="btn" type="button" data-next>הבא</button>
+      </div>`;
+    track = $('.ob-track', el); dots = $$('[data-go]', el); nextBtn = $('[data-next]', el);
+    el.addEventListener('click', e => {
+      if (e.target.closest('[data-skip]')) return finish();
+      if (e.target.closest('[data-next]')) return idx < SLIDES.length - 1 ? go(idx + 1) : finish();
+      const d = e.target.closest('[data-go]'); if (d) go(+d.dataset.go);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') go(Math.min(SLIDES.length - 1, idx + 1));
+      if (e.key === 'ArrowRight') go(Math.max(0, idx - 1));
+    });
+    // החלקה: ב RTL החלקה ימינה מתקדמת קדימה
+    const vp = $('.ob-viewport', el);
+    let x0 = null, y0 = 0, dx = 0, w = 1, horiz = null;
+    vp.addEventListener('pointerdown', e => { x0 = e.clientX; y0 = e.clientY; dx = 0; horiz = null; w = vp.clientWidth || 1; });
+    vp.addEventListener('pointermove', e => {
+      if (x0 == null) return;
+      dx = e.clientX - x0;
+      if (horiz == null && (Math.abs(dx) > 8 || Math.abs(e.clientY - y0) > 8)) horiz = Math.abs(dx) > Math.abs(e.clientY - y0);
+      if (!horiz) return;
+      const edge = (idx === 0 && dx < 0) || (idx === SLIDES.length - 1 && dx > 0);
+      track.style.transition = 'none';
+      track.style.transform = `translateX(calc(${idx * 100}% + ${edge ? dx / 3 : dx}px))`;
+    });
+    const end = () => {
+      if (x0 == null) return;
+      track.style.transition = '';
+      if (horiz && Math.abs(dx) > w * .18){
+        if (dx > 0 && idx < SLIDES.length - 1) return (x0 = null, go(idx + 1));
+        if (dx < 0 && idx > 0) return (x0 = null, go(idx - 1));
+      }
+      x0 = null; go(idx);
+    };
+    vp.addEventListener('pointerup', end);
+    vp.addEventListener('pointercancel', end);
+    vp.addEventListener('pointerleave', end);
+  }
+  function go(i){
+    idx = i;
+    track.style.transform = `translateX(${i * 100}%)`;
+    $$('.ob-slide', el).forEach((s, k) => { s.classList.toggle('is-active', k === i); s.setAttribute('aria-hidden', k !== i); s.inert = k !== i; });
+    dots.forEach((d, k) => d.setAttribute('aria-current', k === i));
+    nextBtn.textContent = i === SLIDES.length - 1 ? 'בואו נתחיל' : 'הבא';
+    nextBtn.style.setProperty('--a', SLIDES[i].a);
+    const slide = $$('.ob-slide', el)[i];
+    if (i === 2){
+      const m = slide.querySelector('animateMotion');
+      setTimeout(() => { try { m && m.beginElement(); } catch {} }, reduceMotion ? 0 : 1600);
+    }
+    if (i === 3) countUp(slide.querySelector('.a4-count'), 128540);
+  }
+  function countUp(node, to){
+    cancelAnimationFrame(countRaf);
+    if (reduceMotion){ node.textContent = fmt(to); return; }
+    const t0 = performance.now() + 1100, dur = 1300;
+    const step = t => {
+      const p = Math.min(1, Math.max(0, (t - t0) / dur)), e = 1 - Math.pow(1 - p, 3);
+      node.textContent = fmt(Math.round(to * e));
+      if (p < 1) countRaf = requestAnimationFrame(step);
+    };
+    countRaf = requestAnimationFrame(step);
+  }
+  function finish(){
+    store.set('onboarded', true);
+    cancelAnimationFrame(countRaf);
+    el.classList.add('is-leaving');
+    const done = onDone; onDone = null;
+    setTimeout(() => { el.hidden = true; el.classList.remove('is-leaving'); el.innerHTML = ''; }, reduceMotion ? 0 : 340);
+    done && done();
+  }
+  function open(fromMenu, cb){
+    build();
+    onDone = cb || null;
+    el.hidden = false;
+    go(0);
+    nextBtn.focus({ preventScroll:true });
+  }
+  return { open };
+})();
+
+/* ======================================================
+   מחשבון גיל
+   ====================================================== */
+register({
+  id:'age', title:'מחשבון גיל', icon:'age', accent:'#A99BFF',
+  desc:'הגיל המדויק בזמן אמת וספירה ליום ההולדת',
+  keywords:'גיל יום הולדת תאריך לידה שנים',
+  mount(root){
+    const MAX = 30;
+    const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+    const T = {
+      male:   { title:'הגיל שלך הוא', today:(n, a) => `מזל טוב ${n}! היום אתה בן ${a}`, next:a => `ביום הזה תהיה בן ${a}` },
+      female: { title:'הגיל שלך הוא', today:(n, a) => `מזל טוב ${n}! היום את בת ${a}`, next:a => `ביום הזה תהיי בת ${a}` },
+      neutral:{ title:'הגיל שלכם הוא', today:(n, a) => `מזל טוב ${n}! היום מלאו לכם ${a}`, next:a => `ביום הזה תגיעו לגיל ${a}` }
+    };
+    root.innerHTML = `
+      <form id="ag-form" novalidate>
+        <div class="field">
+          <label class="label" for="ag-name"><span>איך קוראים לך?</span><span class="counter num" id="ag-count">0/${MAX}</span></label>
+          <input id="ag-name" class="input" type="text" maxlength="${MAX}" autocomplete="given-name" placeholder="השם שלך" enterkeyhint="next" spellcheck="false">
+          <p class="hint err" id="ag-name-err" hidden></p>
+        </div>
+        <div class="field">
+          <span class="label">איך לפנות אליך?</span>
+          <div class="seg" id="ag-g" role="group" aria-label="צורת פנייה">
+            <button type="button" data-v="male" aria-pressed="false">גבר</button>
+            <button type="button" data-v="female" aria-pressed="false">אישה</button>
+            <button type="button" data-v="neutral" aria-pressed="false">לא משנה</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="label">תאריך לידה</span>
+          <div class="date-row">
+            <select id="ag-d" class="input num" aria-label="יום"></select>
+            <select id="ag-m" class="input" aria-label="חודש"></select>
+            <select id="ag-y" class="input num" aria-label="שנה"></select>
+          </div>
+          <p class="hint err" id="ag-date-err" hidden></p>
+        </div>
+        <button class="btn" type="submit" id="ag-go" disabled>חישוב הגיל</button>
+      </form>
+      <div id="ag-res" hidden></div>`;
+
+    const form = $('#ag-form', root), name = $('#ag-name', root), count = $('#ag-count', root), nameErr = $('#ag-name-err', root);
+    const gWrap = $('#ag-g', root), dSel = $('#ag-d', root), mSel = $('#ag-m', root), ySel = $('#ag-y', root);
+    const dateErr = $('#ag-date-err', root), go = $('#ag-go', root), res = $('#ag-res', root);
+    let gender = null, badWord = null, checkT = null, timer = null, alignT = null;
+
+    const thisYear = new Date().getFullYear();
+    ySel.innerHTML = '<option value="">שנה</option>' + Array.from({ length: thisYear - 1899 }, (_, i) => `<option>${thisYear - i}</option>`).join('');
+    mSel.innerHTML = '<option value="">חודש</option>' + MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+    function fillDays(){
+      const max = Core.daysInMonth(+ySel.value || 2000, +mSel.value || 1);
+      const cur = +dSel.value;
+      dSel.innerHTML = '<option value="">יום</option>' + Array.from({ length: max }, (_, i) => `<option>${i + 1}</option>`).join('');
+      if (cur && cur <= max) dSel.value = cur;
+      return !(cur && cur > max);
+    }
+    fillDays();
+
+    function showErr(el, msg){ el.innerHTML = `${icon('alert')}<span>${msg}</span>`; el.hidden = false; }
+    function birthDate(){
+      if (!dSel.value || !mSel.value || !ySel.value) return null;
+      return new Date(+ySel.value, +mSel.value - 1, +dSel.value);
+    }
+    function validate(){
+      const b = birthDate();
+      const future = b && b > Core.startOfDay(new Date());
+      if (future) showErr(dateErr, 'התאריך הזה עוד לא הגיע. בחרו תאריך לידה שכבר עבר.');
+      else if (dateErr.dataset.kind !== 'reset') dateErr.hidden = true;
+      go.disabled = !(name.value.trim().length >= 2 && !badWord && gender && b && !future);
+    }
+    function runCheck(withShake){
+      badWord = Core.checkProfanity(name.value);
+      if (badWord){
+        showErr(nameErr, `השם כולל ביטוי פוגעני (${esc(Core.maskWord(badWord))}). נסו שם אחר.`);
+        if (!name.classList.contains('is-error') || withShake){
+          name.classList.remove('shake'); void name.offsetWidth; name.classList.add('shake');
+        }
+        name.classList.add('is-error');
+      } else {
+        nameErr.hidden = true; name.classList.remove('is-error');
+      }
+      validate();
+    }
+
+    name.addEventListener('input', () => {
+      const clean = Core.sanitizeName(name.value, MAX);
+      if (clean !== name.value) name.value = clean;
+      const len = [...name.value].length;
+      count.textContent = `${len}/${MAX}`;
+      count.classList.toggle('is-near', len >= MAX - 5);
+      clearTimeout(checkT);
+      checkT = setTimeout(() => runCheck(false), 380);
+      validate();
+    });
+    name.addEventListener('blur', () => { clearTimeout(checkT); runCheck(false); });
+    name.addEventListener('animationend', () => name.classList.remove('shake'));
+    gWrap.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      gender = b.dataset.v;
+      $$('[data-v]', gWrap).forEach(x => x.setAttribute('aria-pressed', x === b));
+      validate();
+    });
+    [mSel, ySel].forEach(s => s.addEventListener('change', () => {
+      if (!fillDays()){ dateErr.dataset.kind = 'reset'; showErr(dateErr, 'אין יום כזה בחודש שנבחר, בחרו יום מחדש.'); }
+      validate();
+    }));
+    dSel.addEventListener('change', () => { delete dateErr.dataset.kind; dateErr.hidden = true; validate(); });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      clearTimeout(checkT);
+      runCheck(true);
+      if (go.disabled) return;
+      go.disabled = true;
+      go.innerHTML = '<span class="spinner"></span>מחשבים';
+      setTimeout(showResult, reduceMotion ? 0 : 420);
+    });
+
+    function showResult(){
+      const b = birthDate(), nm = esc(name.value.trim()), t = T[gender];
+      go.textContent = 'חישוב הגיל';
+      form.hidden = true;
+      res.hidden = false;
+      const confetti = Array.from({ length: 26 }, (_, i) => {
+        const x = (i * 37) % 100, c = ['#A99BFF','#3DD9B8','#FFB547','#EEF1F6'][i % 4], dl = (i * .23) % 3.2;
+        return i % 3 ? `<rect x="${x}%" y="0" width="6" height="10" rx="1.5" fill="${c}" style="animation-delay:-${dl}s"/>`
+                     : `<circle cx="${x}%" cy="0" r="3.5" fill="${c}" style="animation-delay:-${dl}s"/>`;
+      }).join('');
+      const tile = (k, l) => `<div class="tile"><span class="num" data-k="${k}">0</span><small>${l}</small></div>`;
+      res.innerHTML = `<div class="result">
+        <div class="bday" data-k="bday" hidden><svg class="confetti" aria-hidden="true">${confetti}</svg><p data-k="bdayTxt"></p></div>
+        <p class="res-kicker">היי ${nm},</p>
+        <h2 class="res-title">${t.title}</h2>
+        <div class="hero"><span class="big num" data-k="y">0</span><span class="big-unit" data-k="yU">שנים</span></div>
+        <div class="tiles">${tile('m','חודשים')}${tile('d','ימים')}${tile('H','שעות')}${tile('M','דקות')}${tile('S','שניות')}</div>
+        <div class="sep"></div>
+        <div class="sub-head"><h3>יום ההולדת הבא</h3><span data-k="nbDate"></span></div>
+        <div class="bar" role="progressbar" aria-label="ההתקדמות עד יום ההולדת הבא"><span data-k="bar"></span></div>
+        <div class="tiles t4">${tile('nd','ימים')}${tile('nH','שעות')}${tile('nM','דקות')}${tile('nS','שניות')}</div>
+        <p class="hint" data-k="nbTxt"></p>
+        <div class="btn-row actions">
+          <button type="button" class="btn btn--ghost" data-act="edit">${icon('edit')}עריכה</button>
+          <button type="button" class="btn" data-act="new">${icon('refresh')}חישוב חדש</button>
+        </div></div>`;
+      const K = {}; $$('[data-k]', res).forEach(n => K[n.dataset.k] = n);
+      const dateFmt = new Intl.DateTimeFormat('he-IL', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      const set = (k, v) => { const s = String(v); if (K[k].textContent !== s) K[k].textContent = s; };
+      let lastNbKey = '';
+      function tick(){
+        const now = new Date(), a = Core.ageParts(b, now), nb = Core.nextBirthday(b, now);
+        set('y', fmt(a.y)); set('yU', a.y === 1 ? 'שנה' : 'שנים');
+        set('m', a.m); set('d', a.d); set('H', a.H); set('M', a.M); set('S', a.S);
+        set('nd', fmt(nb.d)); set('nH', nb.H); set('nM', nb.M); set('nS', nb.S);
+        const key = nb.date.getTime() + '|' + nb.isToday;
+        if (key !== lastNbKey){
+          lastNbKey = key;
+          set('nbDate', dateFmt.format(nb.date));
+          set('nbTxt', t.next(nb.turning));
+          K.bday.hidden = !nb.isToday;
+          if (nb.isToday) K.bdayTxt.innerHTML = `${t.today(nm, a.y)}`;
+        }
+        K.bar.style.width = (nb.progress * 100).toFixed(2) + '%';
+        K.bar.parentNode.setAttribute('aria-valuenow', Math.round(nb.progress * 100));
+      }
+      tick();
+      clearInterval(timer);
+      const startTimer = () => { clearInterval(timer); timer = setInterval(tick, 1000); };
+      clearTimeout(alignT);
+      alignT = setTimeout(() => { tick(); startTimer(); }, 1000 - (Date.now() % 1000));
+      res.querySelector('[data-act="edit"]').addEventListener('click', () => backToForm(false));
+      res.querySelector('[data-act="new"]').addEventListener('click', () => backToForm(true));
+      window.scrollTo({ top:0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+    function backToForm(clear){
+      clearInterval(timer); clearTimeout(alignT); timer = null;
+      res.hidden = true; res.innerHTML = '';
+      form.hidden = false;
+      if (clear){
+        form.reset(); gender = null; badWord = null;
+        $$('[data-v]', gWrap).forEach(x => x.setAttribute('aria-pressed', 'false'));
+        count.textContent = `0/${MAX}`; count.classList.remove('is-near');
+        nameErr.hidden = dateErr.hidden = true; name.classList.remove('is-error'); fillDays();
+      }
+      validate();
+      window.scrollTo(0, 0);
+      if (clear) name.focus();
+    }
+    return () => { clearInterval(timer); clearTimeout(alignT); clearTimeout(checkT); };
+  }
+});
+
+/* ======================================================
+   מחשבון עלות נסיעה
+   ====================================================== */
+/* ====== API: הועתק אחד לאחד מהקוד המקורי ====== */
+const ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjhjMDI2MDIxM2Q4YTQwN2Q5OWU4YjRlYTJmMGI4NWY3IiwiaCI6Im11cm11cjY0In0="; // ORS שלך
+const ORS_GEOCODE = "https://api.openrouteservice.org/geocode/search";
+const ORS_ROUTE   = "https://api.openrouteservice.org/v2/directions/driving-car";
+const EXR_KEY = "d25c73613bd1e354c166f468";
+const EXR_BASE = "https://v6.exchangerate-api.com/v6";
+const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LEAFLET_JS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+const OSM_TILES   = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+/* ====== תוספת: אותו שירות ORS ואותו מפתח, נדרש לכפתור "יציאה מהמיקום הנוכחי" ====== */
+const ORS_REVERSE = "https://api.openrouteservice.org/geocode/reverse";
+
+const CUR = {
+  ILS:{ sym:'₪',   name:'שקל' },          USD:{ sym:'$',   name:'דולר אמריקאי' }, EUR:{ sym:'€', name:'אירו' },
+  GBP:{ sym:'£',   name:'לירה שטרלינג' }, JPY:{ sym:'¥',   name:'ין יפני' },      CAD:{ sym:'C$', name:'דולר קנדי' },
+  AUD:{ sym:'A$',  name:'דולר אוסטרלי' }, CHF:{ sym:'CHF', name:'פרנק שווייצרי' }, TRY:{ sym:'₺', name:'לירה טורקית' },
+  AED:{ sym:'AED', name:'דירהם' }
+};
+
+let leafletP = null;
+function loadLeaflet(){
+  if (window.L) return Promise.resolve(window.L);
+  if (leafletP) return leafletP;
+  leafletP = new Promise((res, rej) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = LEAFLET_CSS; document.head.appendChild(css);
+    const s = document.createElement('script'); s.src = LEAFLET_JS; s.async = true;
+    s.onload = () => window.L ? res(window.L) : rej(new Error('leaflet'));
+    s.onerror = () => { leafletP = null; s.remove(); rej(new Error('leaflet')); };
+    document.head.appendChild(s);
+  });
+  return leafletP;
+}
+
+async function getRate(base, target){
+  const key = 'rates:' + base, cached = store.get(key, null);
+  let data = cached && Date.now() - cached.t < 6 * 36e5 ? cached.data : null, problem = null, old = false;
+  if (!data){
+    try {
+      const res = await fetch(`${EXR_BASE}/${EXR_KEY}/latest/${encodeURIComponent(base)}`);
+      if (res.status === 429) problem = 'limit';
+      else if (!res.ok) problem = 'fail';
+      else {
+        const j = await res.json();
+        if (j.result === 'success'){
+          data = { time_last_update_utc: j.time_last_update_utc, conversion_rates: j.conversion_rates };
+          store.set(key, { t: Date.now(), data });
+        } else problem = j['error-type'] === 'quota-reached' ? 'limit' : 'fail';
+      }
+    } catch { problem = 'fail'; }
+    if (!data && cached){ data = cached.data; old = true; }
+  }
+  if (!data) return { problem };
+  const rate = data.conversion_rates && data.conversion_rates[target];
+  if (!rate) return { problem:'fail' };
+  const upd = Date.parse(data.time_last_update_utc || '');
+  return { rate, updated: isNaN(upd) ? null : new Date(upd), stale: old || (!isNaN(upd) && (Date.now() - upd) / 36e5 > 48) };
+}
+
+function autocomplete(input, list, onPick){
+  let ctrl = null, t = null, items = [], active = -1;
+  const open = () => { list.hidden = false; input.setAttribute('aria-expanded', 'true'); };
+  const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); active = -1; };
+  const msg = html => { items = []; list.innerHTML = `<li class="ac-msg" aria-disabled="true">${html}</li>`; open(); };
+  function render(){
+    list.innerHTML = items.map((f, i) => {
+      const p = f.properties || {}, title = p.name || p.label || '';
+      const sub = [p.locality || p.county, p.region, p.country].filter((v, k, a) => v && v !== title && a.indexOf(v) === k).join(', ');
+      return `<li role="option" id="${list.id}-${i}" data-i="${i}" aria-selected="${i === active}">${icon('pin')}<span><span class="t">${esc(title)}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ''}</span></li>`;
+    }).join('');
+    open();
+  }
+  async function search(q){
+    if (ctrl) ctrl.abort();
+    ctrl = new AbortController();
+    msg('<span class="spinner"></span><span>מחפשים</span>');
+    try {
+      const url = `${ORS_GEOCODE}?api_key=${encodeURIComponent(ORS_KEY)}&text=${encodeURIComponent(q)}&size=8&lang=he`;
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error('geocode ' + res.status);
+      const data = await res.json();
+      items = (data && data.features) || []; active = -1;
+      if (!items.length) return msg('לא נמצאו תוצאות. נסו לנסח את הכתובת אחרת.');
+      render();
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      msg(navigator.onLine ? 'לא הצלחנו לטעון הצעות כרגע. נסו שוב בעוד רגע.' : 'אין חיבור לאינטרנט.');
+    }
+  }
+  function pick(i){
+    const f = items[i]; if (!f) return;
+    const [lon, lat] = f.geometry.coordinates, p = f.properties || {};
+    input.value = p.label || p.name || '';
+    close();
+    onPick({ lat, lon });
+  }
+  input.addEventListener('input', () => {
+    onPick(null);
+    clearTimeout(t);
+    const q = input.value.trim();
+    if (q.length < 2){ if (ctrl) ctrl.abort(); close(); return; }
+    t = setTimeout(() => search(q), 350);
+  });
+  input.addEventListener('keydown', e => {
+    if (list.hidden || !items.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      active = (active + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      render(); input.setAttribute('aria-activedescendant', `${list.id}-${active}`);
+    } else if (e.key === 'Enter'){ e.preventDefault(); pick(active >= 0 ? active : 0); }
+    else if (e.key === 'Escape') close();
+  });
+  list.addEventListener('click', e => { const li = e.target.closest('[data-i]'); if (li) pick(+li.dataset.i); });
+  const outside = e => { if (e.target !== input && !list.contains(e.target)) close(); };
+  document.addEventListener('pointerdown', outside);
+  return {
+    set(v){ clearTimeout(t); if (ctrl) ctrl.abort(); input.value = v; close(); },
+    destroy(){ clearTimeout(t); if (ctrl) ctrl.abort(); document.removeEventListener('pointerdown', outside); }
+  };
+}
+
+register({
+  id:'travel', title:'עלות נסיעה', icon:'route', accent:'#3DD9B8',
+  desc:'מסלול, מרחק ועלות דלק או חשמל',
+  keywords:'נסיעה דלק בנזין סולר גז חשמלי מסלול רכב מפה מטבע',
+  mount(root){
+    const ACC = '#3DD9B8';
+    const st = { from:null, to:null, km:0, trip:'oneway', fuel:null, seq:0 };
+    let L = null, map = null, mapP = null, mkFrom = null, mkTo = null, line = null, alive = true, revealed = false, step3Shown = false;
+    const curOpts = sel => Object.entries(CUR).map(([c, v]) => `<option value="${c}"${c === sel ? ' selected' : ''}>${v.sym} ${v.name} (${c})</option>`).join('');
+    const savedCur = store.get('travel:cur', 'ILS');
+
+    root.innerHTML = `
+      <div class="offline" id="tr-off" hidden>${icon('offline')}<span>אין חיבור לאינטרנט. כדי למצוא כתובות ולחשב מסלול צריך חיבור פעיל.</span></div>
+      <div class="field">
+        <label class="label" for="tr-from">מאיפה יוצאים?</label>
+        <div class="ac">
+          <input id="tr-from" class="input" type="text" placeholder="כתובת, עיר או מקום" autocomplete="off" enterkeyhint="search"
+            role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="tr-from-list">
+          <ul class="ac-list" id="tr-from-list" role="listbox" hidden></ul>
+        </div>
+        <button type="button" class="loc-btn" id="tr-loc">${icon('locate')}<span>יציאה מהמיקום הנוכחי שלי</span></button>
+      </div>
+      <div class="field">
+        <label class="label" for="tr-to">לאן נוסעים?</label>
+        <div class="ac">
+          <input id="tr-to" class="input" type="text" placeholder="כתובת, עיר או מקום" autocomplete="off" enterkeyhint="search"
+            role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="tr-to-list">
+          <ul class="ac-list" id="tr-to-list" role="listbox" hidden></ul>
+        </div>
+        <p class="hint">בחו״ל אפשר לחפש גם בשפה המקומית. כתובת מדויקת נותנת תוצאה מדויקת.</p>
+      </div>
+      <div class="map-card" id="tr-card" hidden>
+        <div class="map" id="tr-map" dir="ltr" aria-label="מפת המסלול"></div>
+        <div class="route-sum" id="tr-sum" aria-live="polite"></div>
+      </div>
+      <div id="tr-step2" hidden>
+        <div class="field">
+          <span class="label">סוג הנסיעה</span>
+          <div class="seg" id="tr-trip" role="group" aria-label="סוג הנסיעה">
+            <button type="button" data-v="oneway" aria-pressed="true">כיוון אחד</button>
+            <button type="button" data-v="round" aria-pressed="false">הלוך וחזור</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="tr-car"><span>באיזה רכב נוסעים?</span><span class="aux">לא חובה</span></label>
+          <input id="tr-car" class="input" type="text" maxlength="40" placeholder="למשל טויוטה קורולה" autocomplete="off">
+        </div>
+        <div class="field">
+          <span class="label">במה הרכב נוסע?</span>
+          <div class="seg seg--tiles" id="tr-fuel" role="group" aria-label="סוג אנרגיה">
+            <button type="button" data-v="gasoline" aria-pressed="false">${icon('pump')}<span>בנזין 95</span></button>
+            <button type="button" data-v="diesel" aria-pressed="false">${icon('drop')}<span>סולר</span></button>
+            <button type="button" data-v="lpg" aria-pressed="false">${icon('gas')}<span>גז</span></button>
+            <button type="button" data-v="ev" aria-pressed="false">${icon('bolt')}<span>חשמלי</span></button>
+          </div>
+        </div>
+        <div id="tr-step3" hidden>
+          <div class="field">
+            <label class="label" for="tr-price" id="tr-price-lbl">מחיר לליטר</label>
+            <div class="price-row">
+              <input id="tr-price" class="input num" type="text" inputmode="decimal" placeholder="למשל 7.20" autocomplete="off">
+              <select id="tr-cur" class="input" aria-label="מטבע">${curOpts(savedCur)}</select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="tr-cons" id="tr-cons-lbl">כמה ק״מ הרכב עושה לליטר?</label>
+            <input id="tr-cons" class="input num" type="text" inputmode="decimal" placeholder="למשל 14" autocomplete="off">
+            <p class="hint" id="tr-cons-hint">אם הרכב עושה 1 ל 14, הזינו 14</p>
+            <p class="hint err" id="tr-cons-err" hidden></p>
+          </div>
+          <div class="field">
+            <label class="label" for="tr-cur2"><span>הצגת העלות גם במטבע נוסף</span><span class="aux">לא חובה</span></label>
+            <select id="tr-cur2" class="input"><option value="">ללא המרה</option>${curOpts('')}</select>
+          </div>
+          <button class="btn" type="button" id="tr-go" disabled>חישוב עלות הנסיעה</button>
+        </div>
+      </div>
+      <div id="tr-res" hidden></div>`;
+
+    const q = s => $(s, root);
+    const off = q('#tr-off'), fromIn = q('#tr-from'), toIn = q('#tr-to'), locBtn = q('#tr-loc');
+    const card = q('#tr-card'), mapEl = q('#tr-map'), sumEl = q('#tr-sum'), step2 = q('#tr-step2'), step3 = q('#tr-step3');
+    const tripW = q('#tr-trip'), carIn = q('#tr-car'), fuelW = q('#tr-fuel'), priceIn = q('#tr-price'), curSel = q('#tr-cur');
+    const consIn = q('#tr-cons'), consErr = q('#tr-cons-err'), cur2Sel = q('#tr-cur2'), go = q('#tr-go'), res = q('#tr-res');
+
+    /* חיבור לאינטרנט */
+    const onNet = () => { off.hidden = navigator.onLine; };
+    onNet();
+    window.addEventListener('online', onNet); window.addEventListener('offline', onNet);
+    if (navigator.onLine) loadLeaflet().catch(() => {});
+
+    /* מפה */
+    function ensureMap(){
+      card.hidden = false;
+      if (mapP) return mapP.then(m => { m && m.invalidateSize(); return m; });
+      mapP = loadLeaflet().then(lib => {
+        if (!alive) return null;
+        L = lib;
+        map = L.map(mapEl, { zoomControl:true, scrollWheelZoom:false }).setView([31.771959, 35.217018], 7);
+        L.tileLayer(OSM_TILES, { maxZoom:19, attribution:'&copy; OpenStreetMap' }).addTo(map);
+        setTimeout(() => map && map.invalidateSize(), 80);
+        return map;
+      }).catch(() => { mapEl.hidden = true; mapP = null; return null; });
+      return mapP;
+    }
+    const iconFrom = () => L.divIcon({ className:'', html:'<div class="mk-o"></div>', iconSize:[20, 20], iconAnchor:[10, 10] });
+    const iconTo = () => L.divIcon({ className:'mk-d', iconSize:[30, 38], iconAnchor:[15, 37],
+      html:`<svg viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C6 27 1 20.5 1 14a14 14 0 0 1 28 0c0 6.5-5 13-14 23z" fill="${ACC}"/><circle cx="15" cy="14" r="5" fill="#0F1420"/></svg>` });
+    function syncMarkers(){
+      if (!map) return;
+      if (st.from){ if (mkFrom) mkFrom.setLatLng([st.from.lat, st.from.lon]); else mkFrom = L.marker([st.from.lat, st.from.lon], { icon: iconFrom(), keyboard:false }).addTo(map); }
+      else if (mkFrom){ map.removeLayer(mkFrom); mkFrom = null; }
+      if (st.to){ if (mkTo) mkTo.setLatLng([st.to.lat, st.to.lon]); else mkTo = L.marker([st.to.lat, st.to.lon], { icon: iconTo(), keyboard:false }).addTo(map); }
+      else if (mkTo){ map.removeLayer(mkTo); mkTo = null; }
+      if (line) return;
+      if (st.from && st.to) map.fitBounds([[st.from.lat, st.from.lon], [st.to.lat, st.to.lon]], { padding:[36, 36] });
+      else if (st.from || st.to){ const p = st.from || st.to; map.setView([p.lat, p.lon], 13); }
+    }
+    function setLine(coords){
+      if (line && map){ map.removeLayer(line); line = null; }
+      if (coords && map){
+        line = L.polyline(coords, { color: ACC, weight:5, opacity:.95, lineCap:'round', lineJoin:'round' }).addTo(map);
+        map.fitBounds(line.getBounds(), { padding:[28, 28] });
+      }
+    }
+
+    function sum(state, text){
+      sumEl.className = 'route-sum' + (state === 'error' ? ' is-error' : '');
+      if (state === 'idle') sumEl.innerHTML = `<small>בחרו ${st.from ? 'יעד' : 'נקודת יציאה'} כדי לחשב מסלול</small>`;
+      else if (state === 'loading') sumEl.innerHTML = '<span class="busy"><span class="spinner"></span>מחשבים מסלול</span>';
+      else if (state === 'ok') sumEl.innerHTML = `<div><span class="km num">${fmt(st.km, 1)}</span> <small>ק״מ</small></div><small>מרחק נסיעה בכביש, כיוון אחד</small>`;
+      else sumEl.innerHTML = `${icon('alert', 'ic-sm')}<span>${text}</span>`;
+    }
+
+    function setPoint(which, p){
+      if (!p && !st[which]) return;
+      st[which] = p;
+      st.seq++; st.km = 0;
+      staleResult();
+      setLine(null);
+      if (!st.from && !st.to){ card.hidden = true; validate(); return; }
+      ensureMap().then(syncMarkers);
+      if (st.from && st.to) route(); else sum('idle');
+      validate();
+    }
+
+    async function route(){
+      const seq = ++st.seq, o = st.from, d = st.to;
+      sum('loading'); validate();
+      if (Math.abs(o.lat - d.lat) < 1e-5 && Math.abs(o.lon - d.lon) < 1e-5){ sum('error', 'נקודת היציאה והיעד זהות. בחרו יעד אחר.'); return; }
+      try {
+        const url = `${ORS_ROUTE}?api_key=${encodeURIComponent(ORS_KEY)}&start=${o.lon},${o.lat}&end=${d.lon},${d.lat}`;
+        const r = await fetch(url);
+        if (seq !== st.seq || !alive) return;
+        if (!r.ok) throw new Error('route ' + r.status);
+        const data = await r.json();
+        if (seq !== st.seq || !alive) return;
+        const feat = data && data.features && data.features[0];
+        if (!feat) throw new Error('empty');
+        const seg = feat.properties && feat.properties.segments && feat.properties.segments[0];
+        const meters = seg ? seg.distance : (feat.properties && feat.properties.summary ? feat.properties.summary.distance : 0);
+        if (!meters) throw new Error('zero');
+        st.km = meters / 1000;
+        await ensureMap();
+        if (seq !== st.seq || !alive) return;
+        if (map){ syncMarkers(); setLine(feat.geometry.coordinates.map(c => [c[1], c[0]])); }
+        sum('ok');
+        reveal();
+      } catch (e) {
+        if (seq !== st.seq || !alive) return;
+        st.km = 0;
+        sum('error', navigator.onLine
+          ? 'לא נמצא מסלול נסיעה בין שתי הנקודות. ייתכן שאין ביניהן דרך יבשתית או שהמרחק ארוך מדי.'
+          : 'אין חיבור לאינטרנט, לכן אי אפשר לחשב מסלול כרגע.');
+      }
+      validate();
+    }
+    function reveal(){
+      if (revealed) return;
+      revealed = true; step2.hidden = false;
+      setTimeout(() => tripW.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block:'center' }), 80);
+    }
+
+    const acFrom = autocomplete(fromIn, q('#tr-from-list'), p => setPoint('from', p));
+    const acTo = autocomplete(toIn, q('#tr-to-list'), p => setPoint('to', p));
+
+    /* יציאה מהמיקום הנוכחי */
+    const locIdle = locBtn.innerHTML;
+    function locBusy(on){
+      locBtn.disabled = on;
+      locBtn.innerHTML = on ? '<span class="spinner"></span><span>מאתרים את המיקום שלך</span>' : locIdle;
+    }
+    const deniedSheet = () => UI.sheet({ ic:'locate', title:'הגישה למיקום חסומה',
+      text:'כדי לצאת מהמיקום הנוכחי צריך לאפשר גישה למיקום בהגדרות האתר בדפדפן, ואז לנסות שוב. אפשר גם להקליד את כתובת היציאה.' });
+    async function useMyLocation(){
+      if (!('geolocation' in navigator)) return UI.sheet({ ic:'locate', title:'המיקום לא זמין', text:'הדפדפן הזה לא תומך באיתור מיקום. הקלידו את כתובת היציאה.' });
+      if (!window.isSecureContext) return UI.sheet({ ic:'locate', title:'נדרש חיבור מאובטח', text:'איתור מיקום עובד רק כשהאתר נטען בחיבור מאובטח (https).' });
+      let state = 'prompt';
+      try { if (navigator.permissions && navigator.permissions.query) state = (await navigator.permissions.query({ name:'geolocation' })).state; } catch {}
+      if (state === 'denied') return deniedSheet();
+      if (state === 'prompt'){
+        const ok = await UI.sheet({ ic:'locate', title:'יציאה מהמיקום הנוכחי',
+          text:'כדי לסמן את נקודת היציאה, הדפדפן יבקש מכם אישור לגישה למיקום. המיקום משמש רק לחישוב המסלול ולא נשמר.',
+          actions:[{ label:'ביטול' }, { label:'אישור', primary:true }] });
+        if (ok !== 1 || !alive) return;
+      }
+      locBusy(true);
+      navigator.geolocation.getCurrentPosition(async pos => {
+        if (!alive) return;
+        locBusy(false);
+        const { latitude:lat, longitude:lon, accuracy } = pos.coords;
+        const point = { lat, lon };
+        acFrom.set('המיקום הנוכחי שלי');
+        setPoint('from', point);
+        if (accuracy > 1500) UI.toast('המיקום משוער בלבד. לדיוק אפשר להקליד כתובת.');
+        if (!st.to) toIn.focus({ preventScroll:true });
+        try {
+          const r = await fetch(`${ORS_REVERSE}?api_key=${encodeURIComponent(ORS_KEY)}&point.lon=${lon}&point.lat=${lat}&size=1&lang=he`);
+          if (!r.ok) return;
+          const j = await r.json(), label = j && j.features && j.features[0] && j.features[0].properties.label;
+          if (label && alive && st.from === point) acFrom.set(label);
+        } catch {}
+      }, err => {
+        if (!alive) return;
+        locBusy(false);
+        if (err.code === 1) return deniedSheet();
+        UI.sheet({ ic:'locate', title:'לא הצלחנו לאתר את המיקום',
+          text: err.code === 3 ? 'איתור המיקום לקח יותר מדי זמן. נסו שוב, רצוי במקום פתוח.' : 'ודאו ששירותי המיקום (GPS) מופעלים במכשיר ונסו שוב, או הקלידו כתובת.' });
+      }, { enableHighAccuracy:true, timeout:15000, maximumAge:60000 });
+    }
+    locBtn.addEventListener('click', useMyLocation);
+
+    /* שלב 2 */
+    tripW.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      st.trip = b.dataset.v;
+      $$('[data-v]', tripW).forEach(x => x.setAttribute('aria-pressed', x === b));
+      staleResult();
+    });
+    fuelW.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      const wasEv = st.fuel === 'ev', isEv = b.dataset.v === 'ev';
+      if (st.fuel && wasEv !== isEv){ priceIn.value = ''; consIn.value = ''; consErr.hidden = true; consIn.classList.remove('is-error'); }
+      st.fuel = b.dataset.v;
+      $$('[data-v]', fuelW).forEach(x => x.setAttribute('aria-pressed', x === b));
+      q('#tr-price-lbl').textContent = isEv ? 'מחיר לקוט״ש' : 'מחיר לליטר';
+      priceIn.placeholder = isEv ? 'למשל 0.64' : 'למשל 7.20';
+      q('#tr-cons-lbl').textContent = isEv ? 'כמה קוט״ש הרכב צורך ל 100 ק״מ?' : 'כמה ק״מ הרכב עושה לליטר?';
+      consIn.placeholder = isEv ? 'למשל 16' : 'למשל 14';
+      q('#tr-cons-hint').textContent = isEv ? 'את הנתון אפשר למצוא במחשב הנסיעה של הרכב' : 'אם הרכב עושה 1 ל 14, הזינו 14';
+      step3.hidden = false;
+      if (!step3Shown){ step3Shown = true; setTimeout(() => priceIn.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block:'center' }), 60); }
+      staleResult(); validate();
+    });
+    function readCons(){
+      const raw = consIn.value.trim();
+      if (!raw) return { ok:false, empty:true };
+      if (st.fuel === 'ev'){ const v = Core.parseNum(raw); return { v, ok: v >= 5 && v <= 60 }; }
+      const v = Core.parseConsumption(raw); return { v, ok: v >= 1 && v <= 100 };
+    }
+    function showConsErr(){
+      const c = readCons();
+      const bad = !c.ok && !c.empty;
+      consIn.classList.toggle('is-error', bad);
+      consErr.hidden = !bad;
+      if (bad) consErr.innerHTML = `${icon('alert')}<span>${st.fuel === 'ev'
+        ? 'הערך לא נראה הגיוני. הזינו כמה קוט״ש הרכב צורך ל 100 ק״מ, למשל 16.'
+        : 'הערך לא נראה הגיוני. הזינו כמה ק״מ הרכב עושה לליטר, למשל 14.'}</span>`;
+    }
+    function validate(){
+      const price = Core.parseNum(priceIn.value);
+      go.disabled = !(st.km > 0 && st.fuel && price > 0 && price < 1e5 && readCons().ok);
+    }
+    priceIn.addEventListener('input', () => { staleResult(); validate(); });
+    consIn.addEventListener('input', () => { staleResult(); if (!consErr.hidden) showConsErr(); validate(); });
+    consIn.addEventListener('blur', showConsErr);
+    carIn.addEventListener('input', staleResult);
+    curSel.addEventListener('change', () => { store.set('travel:cur', curSel.value); staleResult(); });
+    cur2Sel.addEventListener('change', staleResult);
+
+    function staleResult(){ if (!res.hidden){ res.hidden = true; res.innerHTML = ''; } }
+
+    /* חישוב */
+    go.addEventListener('click', async () => {
+      if (go.disabled) return;
+      const price = Core.parseNum(priceIn.value), cons = readCons();
+      if (!cons.ok) return showConsErr();
+      const cur = curSel.value, cur2 = cur2Sel.value;
+      const dist = st.km * (st.trip === 'round' ? 2 : 1);
+      const isEv = st.fuel === 'ev';
+      const amount = isEv ? dist / 100 * cons.v : dist / cons.v;
+      const cost = amount * price;
+      go.disabled = true; go.innerHTML = '<span class="spinner"></span>מחשבים';
+      const conv = cur2 && cur2 !== cur ? await getRate(cur, cur2) : null;
+      if (!alive) return;
+      go.textContent = 'חישוב עלות הנסיעה'; validate();
+      const car = carIn.value.trim();
+      const fmtRate = r => r.toLocaleString('he-IL', { maximumFractionDigits: r < 10 ? 4 : 2 });
+      const dFmt = d => d.toLocaleDateString('he-IL', { day:'numeric', month:'numeric', year:'numeric' });
+      let convHtml = '', notes = '';
+      if (conv && conv.rate){
+        convHtml = `<p class="conv num">בערך ${fmt(cost * conv.rate, 2)} ${CUR[cur2].sym} <span>(${CUR[cur2].name})</span></p>`;
+        notes += `<p class="note">${icon('info')}<span>שער ההמרה: 1 ${cur} = ${fmtRate(conv.rate)} ${cur2}${conv.updated ? `, עודכן ב ${dFmt(conv.updated)}` : ''}</span></p>`;
+        if (conv.stale) notes += `<p class="note is-warn">${icon('alert')}<span>ייתכן ששער המטבע אינו מעודכן. לתוצאה מדויקת כדאי להצליב מול אתר רשמי של שערי מטבע.</span></p>`;
+      } else if (conv){
+        notes += `<p class="note is-warn">${icon('alert')}<span>${conv.problem === 'limit'
+          ? 'שירות שערי המטבע מוגבל כרגע, ולכן ההמרה לא מוצגת. עלות הנסיעה חושבה כרגיל לפי הנתונים שהזנתם.'
+          : 'לא הצלחנו להביא שער המרה כרגע. עלות הנסיעה חושבה כרגיל לפי הנתונים שהזנתם.'}</span></p>`;
+      }
+      const facts = [
+        ['מרחק', `${fmt(dist, 1)} ק״מ`],
+        ['סוג הנסיעה', st.trip === 'round' ? 'הלוך וחזור' : 'כיוון אחד'],
+        [isEv ? 'צריכת חשמל' : 'כמות דלק', `${fmt(amount, 1)} ${isEv ? 'קוט״ש' : 'ליטר'}`],
+        [isEv ? 'מחיר לקוט״ש' : 'מחיר לליטר', `${fmt(price, 2)} ${CUR[cur].sym}`]
+      ];
+      if (car) facts.push(['רכב', esc(car)]);
+      res.innerHTML = `<div class="result">
+        <p class="res-kicker">עלות משוערת לנסיעה</p>
+        <div class="cost"><span class="big num">${fmt(cost, 2)}</span><span class="cur">${CUR[cur].sym}</span></div>
+        ${convHtml}
+        <dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd class="num">${v}</dd></div>`).join('')}</dl>
+        ${notes}
+        <p class="disclaimer">החישוב הוא הערכה בלבד ואינו מהווה התחייבות. הוא מבוסס על הנתונים שהוזנו ועל המסלול שנמצא בזמן החישוב. העלות בפועל עשויה להשתנות בגלל עומסי תנועה, מהירות וסגנון נהיגה, מזג אוויר, מצב הרכב ומחירי דלק וחשמל משתנים.</p>
+        <div class="actions"><button type="button" class="btn btn--ghost" data-act="new">${icon('refresh')}חישוב נסיעה חדשה</button></div>
+      </div>`;
+      res.hidden = false;
+      res.querySelector('[data-act="new"]').addEventListener('click', resetAll);
+      setTimeout(() => res.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block:'start' }), 40);
+    });
+
+    function resetAll(){
+      st.from = st.to = null; st.km = 0; st.seq++; st.trip = 'oneway'; st.fuel = null;
+      acFrom.set(''); acTo.set('');
+      setLine(null); syncMarkers();
+      card.hidden = true; step2.hidden = true; step3.hidden = true; revealed = false; step3Shown = false;
+      carIn.value = priceIn.value = consIn.value = ''; cur2Sel.value = '';
+      consErr.hidden = true; consIn.classList.remove('is-error');
+      $$('[data-v]', tripW).forEach(x => x.setAttribute('aria-pressed', x.dataset.v === 'oneway'));
+      $$('[data-v]', fuelW).forEach(x => x.setAttribute('aria-pressed', 'false'));
+      res.hidden = true; res.innerHTML = '';
+      validate();
+      window.scrollTo({ top:0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+
+    return () => {
+      alive = false;
+      acFrom.destroy(); acTo.destroy();
+      window.removeEventListener('online', onNet); window.removeEventListener('offline', onNet);
+      if (map){ map.remove(); map = null; }
+    };
+  }
+});
+
+/* ======================================================
+   מונה תווים
+   ====================================================== */
+register({
+  id:'chars', title:'מונה תווים', icon:'chars', accent:'#FFB547',
+  desc:'ספירה ומגבלת תווים, גם לטקסטים ולקבצים ענקיים',
+  keywords:'תווים מילים שורות טקסט מגבלה וואטסאפ קובץ קוד',
+  mount(root){
+    const LIVE_LIMIT = 100000;     // מעל זה הטקסט לא נכנס לתיבת העריכה
+    const PRESETS = [
+      { v:280,   label:'280',    sub:'X (טוויטר)' },
+      { v:2200,  label:'2,200',  sub:'אינסטגרם' },
+      { v:65536, label:'65,536', sub:'וואטסאפ' },
+      { v:'custom', label:'אחר', sub:'מותאם אישית' }
+    ];
+    root.innerHTML = `
+      <div class="field">
+        <div class="label"><span>הטקסט שלכם</span><span class="aux" id="ch-mode">עריכה חופשית</span></div>
+        <div class="toolbar">
+          <button type="button" class="chip" id="ch-paste">${icon('clip')}הדבקה</button>
+          <button type="button" class="chip" id="ch-open">${icon('file')}פתיחת קובץ</button>
+          <button type="button" class="chip" id="ch-clear" disabled>${icon('trash')}ניקוי</button>
+          <input type="file" id="ch-file" hidden accept=".txt,.md,.html,.htm,.css,.js,.mjs,.ts,.jsx,.tsx,.json,.csv,.xml,.svg,.py,.php,.java,.c,.cpp,.cs,.sql,.yml,.yaml,.log,.srt,text/*">
+        </div>
+        <div class="drop" id="ch-drop">
+          <textarea id="ch-text" class="input" placeholder="הקלידו או הדביקו טקסט בכל גודל, או גררו לכאן קובץ" spellcheck="false" dir="auto" aria-label="טקסט לספירה"></textarea>
+          <div class="bigcard" id="ch-big" hidden>
+            <div class="bigcard-head"><span class="bigcard-ic">${icon('file')}</span><div><b id="ch-big-t"></b><small id="ch-big-s"></small></div></div>
+            <div class="progress" id="ch-prog" hidden><span></span></div>
+            <pre class="preview" id="ch-prev" dir="auto"></pre>
+            <p class="hint">כדי שהמכשיר יישאר מהיר מוצגת רק תצוגה מקדימה, אבל הספירה מתבצעת על כל הטקסט.</p>
+          </div>
+        </div>
+      </div>
+      <div class="stats" aria-live="polite">
+        <div class="hero"><span class="big num" id="ch-n">0</span><span class="big-unit">תווים</span></div>
+        <div class="tiles t4">
+          <div class="tile"><span class="num" id="ch-nows">0</span><small>ללא רווחים</small></div>
+          <div class="tile"><span class="num" id="ch-words">0</span><small>מילים</small></div>
+          <div class="tile"><span class="num" id="ch-lines">0</span><small>שורות</small></div>
+          <div class="tile"><span class="num" id="ch-bytes">0 B</span><small>גודל</small></div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">מגבלת תווים</span>
+        <div class="seg seg--tiles" id="ch-pre" role="group" aria-label="מגבלת תווים">
+          ${PRESETS.map(p => `<button type="button" data-v="${p.v}" aria-pressed="false"><span class="num">${p.label}</span><small>${p.sub}</small></button>`).join('')}
+        </div>
+        <input id="ch-custom" class="input num" type="text" inputmode="numeric" placeholder="הזינו מגבלה, למשל 500" autocomplete="off" hidden>
+        <div id="ch-limit" hidden>
+          <div class="meter" id="ch-meter" role="progressbar" aria-label="ניצול המגבלה"><span></span></div>
+          <p class="meter-txt" id="ch-ltxt"></p>
+        </div>
+      </div>`;
+
+    const q = s => $(s, root);
+    const ta = q('#ch-text'), big = q('#ch-big'), bigT = q('#ch-big-t'), bigS = q('#ch-big-s'), prog = q('#ch-prog'), prev = q('#ch-prev');
+    const mode = q('#ch-mode'), clearBtn = q('#ch-clear'), fileIn = q('#ch-file'), drop = q('#ch-drop');
+    const preW = q('#ch-pre'), custom = q('#ch-custom'), limitW = q('#ch-limit'), meter = q('#ch-meter'), ltxt = q('#ch-ltxt');
+    const out = { n:q('#ch-n'), nows:q('#ch-nows'), words:q('#ch-words'), lines:q('#ch-lines'), bytes:q('#ch-bytes') };
+    const core = counterCore();
+    let stats = { chars:0, noWs:0, words:0, lines:0, bytes:0 }, bigActive = false, counting = false;
+    let worker = null, workerURL = null, jobId = 0, raf = 0, alive = true;
+    let limit = store.get('chars:limit', null);   // { v:number, preset:string }
+
+    /* ---- הצגה ---- */
+    function paint(s, partial){
+      stats = s;
+      out.n.textContent = fmt(s.chars);
+      out.nows.textContent = fmt(s.noWs);
+      out.words.textContent = fmt(s.words);
+      out.lines.textContent = fmt(s.lines);
+      out.bytes.textContent = Core.fmtBytes(s.bytes);
+      if (!partial) paintLimit();
+      clearBtn.disabled = !s.chars && !bigActive;
+    }
+    function paintLimit(){
+      const v = limit && limit.v;
+      limitW.hidden = !v;
+      if (!v) return;
+      const c = stats.chars, over = c - v, pct = Math.min(100, c / v * 100);
+      meter.querySelector('span').style.width = pct + '%';
+      meter.classList.toggle('is-over', over > 0);
+      meter.setAttribute('aria-valuenow', Math.round(c / v * 100));
+      ltxt.classList.toggle('is-over', over > 0);
+      ltxt.innerHTML = over > 0 ? `חריגה של <b class="num">${fmt(over)}</b> תווים מעל המגבלה של ${fmt(v)}`
+        : over === 0 ? `<b>בדיוק במגבלה</b> של ${fmt(v)} תווים`
+        : `נשארו <b class="num">${fmt(-over)}</b> תווים מתוך ${fmt(v)}`;
+    }
+    function countSmall(){
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => { const st = core.makeState(); core.feed(st, ta.value); paint(core.result(st)); });
+    }
+
+    /* ---- Worker ---- */
+    function getWorker(){
+      if (worker) return worker;
+      try {
+        const src = `const core=(${counterCore.toString()})();\n(${workerMain.toString()})(core);`;
+        workerURL = URL.createObjectURL(new Blob([src], { type:'text/javascript' }));
+        worker = new Worker(workerURL);
+      } catch { worker = null; }
+      return worker;
+    }
+    function killWorker(){
+      if (worker){ worker.terminate(); worker = null; }
+      if (workerURL){ URL.revokeObjectURL(workerURL); workerURL = null; }
+    }
+    async function fallbackCount(job, onProgress){
+      const text = job.text != null ? job.text : await job.file.text();
+      const st = core.makeState(), CH = 250000;
+      for (let i = 0; i < text.length; i += CH){
+        if (!alive || job.id !== jobId) return null;
+        core.feed(st, text.slice(i, i + CH));
+        onProgress(Math.min(1, (i + CH) / text.length), core.result(st));
+        await new Promise(r => setTimeout(r, 0));
+      }
+      return { stats: core.result(st), preview: text.slice(0, 2000) };
+    }
+    function runJob(job){
+      if (counting) killWorker();               // ביטול ספירה קודמת
+      const id = ++jobId; job.id = id; counting = true;
+      prog.hidden = false; setProg(0);
+      return new Promise(resolve => {
+        const finish = r => { if (id !== jobId) return; counting = false; prog.hidden = true; resolve(r); };
+        const onProgress = (p, s) => { if (id !== jobId) return; setProg(p); paint(s, true); };
+        const w = getWorker();
+        if (!w){ fallbackCount(job, onProgress).then(r => r && finish(r)); return; }
+        w.onmessage = e => {
+          const m = e.data; if (m.id !== id) return;
+          if (m.type === 'progress') onProgress(m.p, m.stats);
+          else if (m.type === 'done') finish({ stats: m.stats, preview: m.preview });
+          else { killWorker(); fallbackCount(job, onProgress).then(r => r && finish(r)); }
+        };
+        w.onerror = () => { killWorker(); fallbackCount(job, onProgress).then(r => r && finish(r)); };
+        w.postMessage(job.text != null ? { id, type:'text', text: job.text } : { id, type:'file', file: job.file });
+      });
+    }
+    function setProg(p){ prog.querySelector('span').style.width = (p * 100).toFixed(1) + '%'; }
+
+    /* ---- מצב טקסט גדול ---- */
+    async function enterBig(src){
+      bigActive = true;
+      ta.value = ''; ta.hidden = true; big.hidden = false;
+      clearBtn.disabled = false;
+      prev.textContent = src.text != null ? src.text.slice(0, 2000) : '';
+      if (src.file){
+        bigT.textContent = 'הקובץ נטען';
+        bigS.textContent = `${src.file.name}, ${Core.fmtBytes(src.file.size)}`;
+        mode.textContent = 'קובץ';
+      } else {
+        bigT.textContent = 'טקסט גדול הודבק';
+        bigS.textContent = 'מוצגת תצוגה מקדימה בלבד';
+        mode.textContent = 'טקסט גדול';
+      }
+      const r = await runJob(src.file ? { file: src.file } : { text: src.text });
+      if (!r || !alive) return;
+      if (src.file && !prev.textContent) prev.textContent = r.preview;
+      if (!src.file) bigS.textContent = `${fmt(r.stats.chars)} תווים, מוצגת תצוגה מקדימה בלבד`;
+      paint(r.stats);
+    }
+    function exitBig(){
+      jobId++; if (counting) killWorker(); counting = false;
+      bigActive = false; big.hidden = true; ta.hidden = false; prog.hidden = true; prev.textContent = '';
+      mode.textContent = 'עריכה חופשית';
+    }
+    function clearAll(){
+      exitBig(); ta.value = ''; paint({ chars:0, noWs:0, words:0, lines:0, bytes:0 }); ta.focus();
+    }
+
+    /* ---- קלט ---- */
+    ta.addEventListener('paste', e => {
+      const text = e.clipboardData && e.clipboardData.getData('text/plain');
+      if (text == null) return;
+      const s = ta.selectionStart, en = ta.selectionEnd;
+      if (ta.value.length - (en - s) + text.length > LIVE_LIMIT){
+        e.preventDefault();
+        enterBig({ text: ta.value.slice(0, s) + text + ta.value.slice(en) });
+      }
+    });
+    ta.addEventListener('input', () => {
+      if (ta.value.length > LIVE_LIMIT){ const t = ta.value; enterBig({ text: t }); return; }
+      countSmall();
+    });
+    q('#ch-paste').addEventListener('click', async () => {
+      if (!navigator.clipboard || !navigator.clipboard.readText){ UI.toast('הדבקה מהכפתור לא נתמכת כאן. הדביקו ישירות בתוך התיבה.'); ta.focus(); return; }
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!alive) return;
+        if (!text){ UI.toast('הלוח ריק'); return; }
+        if (text.length > LIVE_LIMIT) enterBig({ text });
+        else { exitBig(); ta.value = text; countSmall(); }
+      } catch { UI.toast('אין גישה ללוח. הדביקו ישירות בתוך התיבה.'); ta.focus(); }
+    });
+    q('#ch-open').addEventListener('click', () => fileIn.click());
+    function takeFile(f){
+      if (!f) return;
+      if (f.size <= LIVE_LIMIT){
+        f.text().then(t => {
+          if (!alive) return;
+          if (t.length > LIVE_LIMIT) enterBig({ file: f }); else { exitBig(); ta.value = t; countSmall(); }
+        }).catch(() => UI.toast('לא הצלחנו לקרוא את הקובץ'));
+      } else enterBig({ file: f });
+    }
+    fileIn.addEventListener('change', () => { takeFile(fileIn.files[0]); fileIn.value = ''; });
+    ['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => {
+      if (!e.dataTransfer || ![...e.dataTransfer.types].includes('Files')) return;
+      e.preventDefault(); drop.classList.add('is-over');
+    }));
+    ['dragleave','drop'].forEach(t => drop.addEventListener(t, () => drop.classList.remove('is-over')));
+    drop.addEventListener('drop', e => {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f){ e.preventDefault(); takeFile(f); }
+    });
+    clearBtn.addEventListener('click', clearAll);
+
+    /* ---- מגבלה ---- */
+    function syncPresets(){
+      $$('[data-v]', preW).forEach(b => b.setAttribute('aria-pressed', !!limit && limit.preset === b.dataset.v));
+      custom.hidden = !(limit && limit.preset === 'custom');
+    }
+    preW.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      const v = b.dataset.v;
+      if (limit && limit.preset === v) limit = null;                 // לחיצה חוזרת מבטלת
+      else if (v === 'custom'){
+        const n = parseInt(custom.value.replace(/\D/g, ''), 10);
+        limit = { preset:'custom', v: n > 0 ? n : 0 };
+        setTimeout(() => custom.focus(), 30);
+      } else limit = { preset: v, v: +v };
+      store.set('chars:limit', limit);
+      syncPresets(); paintLimit();
+    });
+    custom.addEventListener('input', () => {
+      const digits = custom.value.replace(/\D/g, '').slice(0, 9);
+      custom.value = digits ? Number(digits).toLocaleString('he-IL') : '';
+      limit = { preset:'custom', v: digits ? +digits : 0 };
+      store.set('chars:limit', limit);
+      paintLimit();
+    });
+    if (limit && limit.preset === 'custom' && limit.v) custom.value = Number(limit.v).toLocaleString('he-IL');
+    syncPresets(); paint(stats);
+
+    return () => { alive = false; jobId++; cancelAnimationFrame(raf); killWorker(); };
+  }
+});
+
+/* ======================================================
+   התקנה + Service Worker + אתחול
+   ====================================================== */
+const Install = (() => {
+  let deferred = null;
+  const isStandalone = () => matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function available(){ return !!deferred || (isIOS() && !isStandalone()); }
+  function refresh(){ const b = $('#hub-install'); if (b) b.hidden = !available() || isStandalone(); }
+  async function prompt(){
+    if (isStandalone()) return;
+    if (deferred){
+      deferred.prompt();
+      try { await deferred.userChoice; } catch {}
+      deferred = null; refresh();
+      return;
+    }
+    if (isIOS()){
+      await UI.sheet({ ic:'install', title:'התקנה למסך הבית',
+        text:`כדי להתקין את כמה כאפליקציה באייפון או באייפד:<br><br>1. הקישו על כפתור השיתוף ${icon('share', 'inline-ic')} בסרגל הדפדפן.<br>2. בחרו באפשרות "הוספה למסך הבית".<br>3. אשרו, וסמל האפליקציה יופיע במסך הבית.` });
+      return;
+    }
+    UI.toast('האפליקציה כבר מותקנת או שההתקנה אינה זמינה בדפדפן הזה.');
+  }
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; refresh(); });
+  window.addEventListener('appinstalled', () => { deferred = null; refresh(); UI.toast('האפליקציה הותקנה בהצלחה.'); });
+  return { prompt, refresh, available, isStandalone };
+})();
+
+/* Service Worker */
+function registerSW(){
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return; refreshing = true; location.reload();
+      });
+      function offerUpdate(sw){
+        UI.toast('גרסה חדשה של כמה זמינה.', { sticky:true, action:'רענון', onAction:() => sw.postMessage({ type:'SKIP_WAITING' }) });
+      }
+      if (reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing; if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(sw);
+        });
+      });
+    }).catch(() => {});
+  });
+}
+
+/* אתחול */
+function boot(){
+  const shell = $('#shell');
+  const start = () => { shell.hidden = false; if (!location.hash || location.hash === '#') location.hash = '#/'; route(); };
+  if (!store.get('onboarded', false)){
+    Onboarding.open(false, start);
+  } else {
+    start();
+  }
+  registerSW();
+}
+boot();
+})();
+</script>
+</body>
+</html>
